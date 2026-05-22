@@ -519,25 +519,69 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
               {/* Emoji Icon Selection */}
               <div className="form-group">
                 <label>アイコン（絵文字）</label>
-                <div className="emoji-selector">
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '8px' }}>
+                  <input 
+                    type="text" 
+                    maxLength="8"
+                    value={formData.icon}
+                    onChange={e => setFormData({ ...formData, icon: e.target.value })}
+                    placeholder="絵文字を直接自由に入力（例: 👹, 👾）"
+                    style={{ 
+                      flex: 1, 
+                      padding: '8px 12px', 
+                      fontSize: '0.85rem', 
+                      background: 'var(--bg-tertiary)', 
+                      border: '1px solid var(--border-color)', 
+                      borderRadius: '8px', 
+                      color: 'var(--text-primary)',
+                      textAlign: 'left'
+                    }}
+                  />
+                  <div style={{ 
+                    fontSize: '1.6rem', 
+                    width: '44px', 
+                    height: '44px', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    background: 'var(--bg-primary)', 
+                    border: `1.5px dashed ${formData.color || 'var(--border-color)'}`, 
+                    borderRadius: '50%',
+                    boxShadow: `0 0 10px ${formData.color}20`,
+                    flexShrink: 0
+                  }}>
+                    {formData.icon || '❓'}
+                  </div>
+                </div>
+                
+                <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', marginBottom: '6px' }}>
+                  💡 クイック選択プリセット:
+                </div>
+                <div className="emoji-selector" style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                   {EMOJI_OPTIONS.map(emoji => (
                     <button 
                       key={emoji}
                       type="button"
                       className={`emoji-btn ${formData.icon === emoji ? 'active' : ''}`}
                       onClick={() => setFormData({ ...formData, icon: emoji })}
+                      style={{
+                        padding: '6px 10px',
+                        fontSize: '1.05rem',
+                        background: formData.icon === emoji ? 'var(--accent-neon-yellow)' : 'var(--bg-tertiary)',
+                        color: formData.icon === emoji ? '#000' : 'var(--text-primary)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        lineHeight: 1
+                      }}
                     >
                       {emoji}
                     </button>
                   ))}
-                  <input 
-                    type="text" 
-                    maxLength="2"
-                    value={formData.icon}
-                    onChange={e => setFormData({ ...formData, icon: e.target.value })}
-                    placeholder="自作"
-                    style={{ width: '50px', padding: '4px', textAlign: 'center' }}
-                  />
                 </div>
               </div>
 
