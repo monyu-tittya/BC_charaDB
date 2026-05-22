@@ -103,11 +103,17 @@ export default function HeightChart({ characters }) {
                 // Calculate percentage height
                 const pct = ((char.height - minHeightVal) / (maxHeightVal - minHeightVal)) * 100;
                 
+                // Calculate stacked order so shorter ones sit in front of taller ones
+                const dynamicZIndex = 200 - Math.round(char.height);
+                
                 return (
                   <div 
                     key={char.id} 
                     className="character-column"
-                    style={{ animationDelay: `${index * 0.05}s` }}
+                    style={{ 
+                      animationDelay: `${index * 0.05}s`,
+                      zIndex: dynamicZIndex
+                    }}
                   >
                     {/* The Visual Bar */}
                     <div className="bar-wrapper" style={{ height: `${pct}%` }}>
@@ -116,21 +122,52 @@ export default function HeightChart({ characters }) {
                         {char.height}<span className="unit">cm</span>
                       </div>
 
-                      {/* Glowing Bar Column */}
+                      {/* Glowing Bar Column (Human Silhouette SVG) */}
                       <div 
                         className="glowing-bar" 
                         style={{ 
-                          background: `linear-gradient(to top, ${char.secondaryColor || '#111'}, ${char.color})`,
-                          boxShadow: `0 0 15px ${char.color}40`,
                           transform: `scaleY(${scale})`,
-                          transformOrigin: 'bottom'
+                          transformOrigin: 'bottom',
+                          filter: `drop-shadow(0 0 8px ${char.color}60) drop-shadow(0 0 2px ${char.color}80)`
                         }}
                       >
-                        {/* Core Neon Stripe */}
-                        <div className="bar-core" style={{ backgroundColor: char.color }} />
+                        <svg 
+                          viewBox="0 0 100 200" 
+                          preserveAspectRatio="none" 
+                          style={{ 
+                            width: '100%', 
+                            height: '100%', 
+                            display: 'block', 
+                            color: char.color 
+                          }}
+                        >
+                          <defs>
+                            <linearGradient id={`grad-${char.id}`} x1="0%" y1="100%" x2="0%" y2="0%">
+                              <stop offset="0%" stopColor={char.secondaryColor || '#111'} stopOpacity="0.85" />
+                              <stop offset="100%" stopColor={char.color} stopOpacity="0.25" />
+                            </linearGradient>
+                          </defs>
+                          
+                          {/* Head circle */}
+                          <circle 
+                            cx="50" 
+                            cy="18" 
+                            r="11" 
+                            fill={`url(#grad-${char.id})`} 
+                            stroke="currentColor" 
+                            strokeWidth="3" 
+                          />
+                          {/* Body shape (shoulders, waist, legs) */}
+                          <path 
+                            d="M 50 32 C 43 32, 36 34, 28 39 C 18 45, 16 54, 18 68 L 22 105 C 23 110, 21 118, 18 128 L 24 200 L 46 200 L 44 145 L 50 145 L 56 145 L 54 200 L 76 200 L 82 128 C 79 118, 77 110, 78 105 L 82 68 C 84 54, 82 45, 72 39 C 64 34, 57 32, 50 32 Z" 
+                            fill={`url(#grad-${char.id})`} 
+                            stroke="currentColor" 
+                            strokeWidth="3" 
+                          />
+                        </svg>
                         
                         {/* Floating Icon inside bar */}
-                        <div className="bar-icon-float">{char.icon}</div>
+                        <div className="bar-icon-float" style={{ top: '12%', textShadow: `0 0 8px ${char.color}` }}>{char.icon}</div>
                       </div>
                     </div>
 
@@ -343,7 +380,7 @@ export default function HeightChart({ characters }) {
         }
 
         .character-column {
-          width: 80px;
+          width: 82px;
           height: 100%;
           display: flex;
           flex-direction: column;
@@ -354,6 +391,17 @@ export default function HeightChart({ characters }) {
           opacity: 0;
           transform: translateY(20px);
           animation: slideUpIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards;
+          margin-right: -24px; /* Sightly overlap columns */
+          transition: margin 0.3s ease, transform 0.3s ease;
+        }
+
+        .character-column:last-child {
+          margin-right: 0;
+        }
+
+        .character-column:hover {
+          z-index: 300 !important; /* Bring current hover in front of all overlaps */
+          transform: scale(1.05) translateY(-5px); /* Add a micro bounce animation on hover! */
         }
 
         @keyframes slideUpIn {
@@ -365,7 +413,7 @@ export default function HeightChart({ characters }) {
 
         /* Bar structures */
         .bar-wrapper {
-          width: 32px;
+          width: 44px; /* Widened for human silhouette proportions */
           position: relative;
           display: flex;
           flex-direction: column;
@@ -385,7 +433,7 @@ export default function HeightChart({ characters }) {
           border-radius: 4px;
           margin-bottom: 6px;
           white-space: nowrap;
-          z-index: 2;
+          z-index: 10; /* Keep above SVGs */
           box-shadow: 0 2px 8px rgba(0,0,0,0.5);
           animation: pulse 2s infinite ease-in-out;
         }
@@ -399,31 +447,18 @@ export default function HeightChart({ characters }) {
         .glowing-bar {
           width: 100%;
           height: 100%;
-          border-radius: 6px 6px 0 0;
           position: relative;
-          overflow: hidden;
+          overflow: visible; /* Need visible for drop shadow outline glow */
           transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.15);
-        }
-
-        .bar-core {
-          position: absolute;
-          left: 50%;
-          top: 0;
-          bottom: 0;
-          width: 3px;
-          transform: translateX(-50%);
-          opacity: 0.6;
-          filter: blur(1px);
         }
 
         .bar-icon-float {
           position: absolute;
-          top: 8px;
           left: 50%;
           transform: translateX(-50%);
-          font-size: 0.9rem;
+          font-size: 0.95rem;
           pointer-events: none;
-          opacity: 0.8;
+          z-index: 5;
         }
 
         /* Labels */
