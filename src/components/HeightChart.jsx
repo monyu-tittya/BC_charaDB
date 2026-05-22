@@ -138,19 +138,25 @@ export default function HeightChart({ characters }) {
                 // Calculate stacked order so shorter ones sit in front of taller ones
                 const dynamicZIndex = 200 - Math.round(char.height);
                 
+                // 身長に比例して横幅も縮小させることで、低身長キャラ（カメラちゃん）が太って巨大に見えるのを防ぐ
+                const widthScale = Math.max(0.4, Math.min(1.0, char.height / (maxHeightVal || 180)));
+                const barWidth = 44 * widthScale;
+                const overlapMargin = -24 * widthScale;
+                
                 return (
                   <div 
                     key={char.id} 
                     className="character-column"
                     style={{ 
                       animationDelay: `${index * 0.05}s`,
-                      zIndex: dynamicZIndex
+                      zIndex: dynamicZIndex,
+                      marginRight: index === sortedCharacters.length - 1 ? 0 : `${overlapMargin}px`
                     }}
                   >
                     {/* The Visual Bar */}
-                    <div className="bar-wrapper" style={{ height: `${pct}%` }}>
+                    <div className="bar-wrapper" style={{ height: `${pct}%`, width: `${barWidth}px` }}>
                       {/* Height Indicator Label */}
-                      <div className="column-height-bubble" style={{ borderColor: char.color }}>
+                      <div className="column-height-bubble" style={{ borderColor: char.color, transform: `scale(${Math.max(0.8, widthScale)})` }}>
                         {char.height}<span className="unit">cm</span>
                       </div>
 
@@ -199,7 +205,16 @@ export default function HeightChart({ characters }) {
                         </svg>
                         
                         {/* Floating Icon inside bar */}
-                        <div className="bar-icon-float" style={{ top: '12%', textShadow: `0 0 8px ${char.color}` }}>{char.icon}</div>
+                        <div 
+                          className="bar-icon-float" 
+                          style={{ 
+                            top: '12%', 
+                            textShadow: `0 0 8px ${char.color}`,
+                            fontSize: `${0.95 * Math.max(0.7, widthScale)}rem` 
+                          }}
+                        >
+                          {char.icon}
+                        </div>
                       </div>
                     </div>
 
@@ -445,7 +460,7 @@ export default function HeightChart({ characters }) {
 
         /* Bar structures */
         .bar-wrapper {
-          width: 44px; /* Widened for human silhouette proportions */
+          width: 44px; /* Widened for human silhouette proportions, overridden by dynamic inline style */
           position: relative;
           display: flex;
           flex-direction: column;
@@ -453,6 +468,7 @@ export default function HeightChart({ characters }) {
           align-items: center;
           margin-bottom: 80px; /* Offset for avatar labels */
           bottom: 10px;
+          transition: width 0.3s ease;
         }
 
         .column-height-bubble {
