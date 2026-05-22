@@ -3,12 +3,12 @@ import { Copy, Check, Sparkles, X, PlusCircle, RefreshCw, Network } from 'lucide
 
 const EMOJI_OPTIONS = ["😈", "📹", "👦", "🧢", "👼", "🦊", "🐈", "👩", "👨", "🌟", "🔥", "🔮", "🎒", "🎮", "💀"];
 const COLOR_PRESETS = [
-  { name: 'ネオンイエロー (ブラック風)', primary: '#e2f900', secondary: '#151800' },
-  { name: 'ネオンピンク (カメラ風)', primary: '#ff0055', secondary: '#1a0009' },
-  { name: 'ネオンブルー (さとし風)', primary: '#00d2ff', secondary: '#00141a' },
-  { name: 'ネオングリーン (しょうご風)', primary: '#39ff14', secondary: '#051a02' },
-  { name: 'エンジェルゴールド (プラナ風)', primary: '#ffffff', secondary: '#222222' },
-  { name: 'デビルバイオレット', primary: '#bc13fe', secondary: '#13021a' },
+  { name: 'イエロー ', primary: '#e2f900', secondary: '#151800' },
+  { name: 'ピンク', primary: '#ff0055', secondary: '#1a0009' },
+  { name: 'ブルー', primary: '#00d2ff', secondary: '#00141a' },
+  { name: 'グリーン ', primary: '#39ff14', secondary: '#051a02' },
+  { name: 'ゴールド', primary: '#ffffff', secondary: '#222222' },
+  { name: 'バイオレット', primary: '#bc13fe', secondary: '#13021a' },
 ];
 
 export default function AdminHelper({ currentCharacters, onAddTemporarily, onClose }) {
@@ -49,7 +49,7 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
       role: '',
       age: '',
       gender: '男',
-      height: 140,
+      height: 172,
       birthday: '',
       firstPerson: '',
       laugh: '',
@@ -173,13 +173,13 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
   // Full merged JSON structure
   const fullMergedJson = React.useMemo(() => {
     if (editMode === 'edit') {
-      const updatedList = currentCharacters.map(char => 
+      const updatedList = currentCharacters.map(char =>
         char.id === formData.id ? formData : char
       );
       return JSON.stringify(updatedList, null, 2);
     } else {
       if (currentCharacters.some(c => c.id === formData.id)) {
-        const updatedList = currentCharacters.map(char => 
+        const updatedList = currentCharacters.map(char =>
           char.id === formData.id ? formData : char
         );
         return JSON.stringify(updatedList, null, 2);
@@ -208,7 +208,7 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
   return (
     <div className="admin-overlay" onClick={onClose}>
       <div className="admin-modal" onClick={e => e.stopPropagation()}>
-        
+
         {/* Header */}
         <div className="modal-header">
           <h3 className="modal-title">
@@ -227,16 +227,16 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
 
           {/* モード切替タブ */}
           <div className="mode-tabs">
-            <button 
-              type="button" 
-              className={`mode-tab-btn ${editMode === 'create' ? 'active' : ''}`} 
+            <button
+              type="button"
+              className={`mode-tab-btn ${editMode === 'create' ? 'active' : ''}`}
               onClick={() => handleModeChange('create')}
             >
               新規登録
             </button>
-            <button 
-              type="button" 
-              className={`mode-tab-btn ${editMode === 'edit' ? 'active' : ''}`} 
+            <button
+              type="button"
+              className={`mode-tab-btn ${editMode === 'edit' ? 'active' : ''}`}
               onClick={() => handleModeChange('edit')}
             >
               登録修正
@@ -247,8 +247,8 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
           {editMode === 'edit' && (
             <div className="form-group edit-select-group">
               <label>編集するキャラクターを選択</label>
-              <select 
-                value={selectedEditCharId} 
+              <select
+                value={selectedEditCharId}
                 onChange={e => handleSelectEditChar(e.target.value)}
                 className="edit-char-select"
               >
@@ -267,9 +267,9 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
             <form className="admin-form" onSubmit={handleSubmit}>
               <div className="form-group">
                 <label>ID (英語・小文字半角、重複不可{editMode === 'edit' && ' - 修正時は変更不可'})</label>
-                <input 
-                  type="text" 
-                  value={formData.id} 
+                <input
+                  type="text"
+                  value={formData.id}
                   onChange={e => setFormData({ ...formData, id: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') })}
                   placeholder="例: satan, black_demon"
                   required
@@ -281,9 +281,9 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
               <div className="form-row">
                 <div className="form-group">
                   <label>キャラクター名</label>
-                  <input 
-                    type="text" 
-                    value={formData.name} 
+                  <input
+                    type="text"
+                    value={formData.name}
                     onChange={handleNameChange}
                     placeholder="例: ブラック"
                     required
@@ -291,9 +291,9 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
                 </div>
                 <div className="form-group">
                   <label>ふりがな</label>
-                  <input 
-                    type="text" 
-                    value={formData.kana} 
+                  <input
+                    type="text"
+                    value={formData.kana}
                     onChange={e => setFormData({ ...formData, kana: e.target.value })}
                     placeholder="例: ぶらっく"
                   />
@@ -303,17 +303,17 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
               <div className="form-row">
                 <div className="form-group">
                   <label>役割・肩書き</label>
-                  <input 
-                    type="text" 
-                    value={formData.role} 
+                  <input
+                    type="text"
+                    value={formData.role}
                     onChange={e => setFormData({ ...formData, role: e.target.value })}
                     placeholder="例: 悪魔YouTuber"
                   />
                 </div>
                 <div className="form-group">
                   <label>性別</label>
-                  <select 
-                    value={formData.gender} 
+                  <select
+                    value={formData.gender}
                     onChange={e => setFormData({ ...formData, gender: e.target.value })}
                     required
                   >
@@ -327,9 +327,9 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
               <div className="form-row">
                 <div className="form-group">
                   <label>身長 (cm)</label>
-                  <input 
-                    type="number" 
-                    value={formData.height} 
+                  <input
+                    type="number"
+                    value={formData.height}
                     onChange={e => setFormData({ ...formData, height: parseInt(e.target.value) || 0 })}
                     min="10"
                     max="300"
@@ -338,9 +338,9 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
                 </div>
                 <div className="form-group">
                   <label>誕生日</label>
-                  <input 
-                    type="text" 
-                    value={formData.birthday} 
+                  <input
+                    type="text"
+                    value={formData.birthday}
                     onChange={e => setFormData({ ...formData, birthday: e.target.value })}
                     placeholder="例: 9月6日"
                   />
@@ -349,9 +349,9 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
 
               <div className="form-group">
                 <label>年齢・ステータス</label>
-                <input 
-                  type="text" 
-                  value={formData.age} 
+                <input
+                  type="text"
+                  value={formData.age}
                   onChange={e => setFormData({ ...formData, age: e.target.value })}
                   placeholder="例: 悪魔年齢53万歳"
                 />
@@ -360,18 +360,18 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
               <div className="form-row">
                 <div className="form-group">
                   <label>一人称</label>
-                  <input 
-                    type="text" 
-                    value={formData.firstPerson} 
+                  <input
+                    type="text"
+                    value={formData.firstPerson}
                     onChange={e => setFormData({ ...formData, firstPerson: e.target.value })}
                     placeholder="例: オレ、わたし"
                   />
                 </div>
                 <div className="form-group">
                   <label>笑い方</label>
-                  <input 
-                    type="text" 
-                    value={formData.laugh} 
+                  <input
+                    type="text"
+                    value={formData.laugh}
                     onChange={e => setFormData({ ...formData, laugh: e.target.value })}
                     placeholder="例: クハハハ！、ウフフ♪"
                   />
@@ -381,18 +381,18 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
               <div className="form-row">
                 <div className="form-group">
                   <label>口癖・決め台詞</label>
-                  <input 
-                    type="text" 
-                    value={formData.catchphrase} 
+                  <input
+                    type="text"
+                    value={formData.catchphrase}
                     onChange={e => setFormData({ ...formData, catchphrase: e.target.value })}
                     placeholder="例: 鬼ヤバ動画、配信スタート！"
                   />
                 </div>
                 <div className="form-group">
                   <label>語尾</label>
-                  <input 
-                    type="text" 
-                    value={formData.ending} 
+                  <input
+                    type="text"
+                    value={formData.ending}
                     onChange={e => setFormData({ ...formData, ending: e.target.value })}
                     placeholder="例: 〜だ、〜ぜ、〜です"
                   />
@@ -401,9 +401,9 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
 
               <div className="form-group">
                 <label>特徴タグ (カンマ「,」または「、」区切りで複数入力)</label>
-                <input 
-                  type="text" 
-                  value={traitsInput} 
+                <input
+                  type="text"
+                  value={traitsInput}
                   onChange={e => handleTraitsChange(e.target.value)}
                   placeholder="例: 悪魔, YouTuber, 契約者殺し"
                 />
@@ -426,11 +426,11 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
                 <p style={{ fontSize: '0.6rem', color: 'var(--text-muted)', marginBottom: '8px' }}>
                   他のキャラクターとの関係を設定できます。
                 </p>
-                
+
                 <div className="relationship-add-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: '6px', alignItems: 'end' }}>
                   <div className="form-subgroup" style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                     <span style={{ fontSize: '0.6rem', color: 'var(--text-secondary)' }}>対象キャラ</span>
-                    <select 
+                    <select
                       value={relCharId}
                       onChange={e => setRelCharId(e.target.value)}
                       style={{ padding: '6px', fontSize: '0.75rem', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', borderRadius: '6px', color: 'var(--text-primary)' }}
@@ -441,11 +441,11 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
                       ))}
                     </select>
                   </div>
-                  
+
                   <div className="form-subgroup" style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                     <span style={{ fontSize: '0.6rem', color: 'var(--text-secondary)' }}>呼称</span>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={relCall}
                       onChange={e => setRelCall(e.target.value)}
                       placeholder="例: カメラちゃん"
@@ -455,8 +455,8 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
 
                   <div className="form-subgroup" style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                     <span style={{ fontSize: '0.6rem', color: 'var(--text-secondary)' }}>関係</span>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={relRelation}
                       onChange={e => setRelRelation(e.target.value)}
                       placeholder="例: 優秀な相棒"
@@ -464,8 +464,8 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
                     />
                   </div>
 
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={handleAddRelationship}
                     className="add-rel-btn"
                     style={{
@@ -500,8 +500,8 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
                               <span style={{ color: 'var(--text-muted)' }}>関係:</span>
                               <span style={{ color: 'var(--text-primary)' }}>{info.relation}</span>
                             </div>
-                            <button 
-                              type="button" 
+                            <button
+                              type="button"
                               onClick={() => handleRemoveRelationship(targetId)}
                               style={{ background: 'transparent', border: 'none', color: 'var(--accent-neon-pink)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '2px' }}
                               title="関係を削除"
@@ -520,32 +520,32 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
               <div className="form-group">
                 <label>アイコン（絵文字）</label>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '8px' }}>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     maxLength="8"
                     value={formData.icon}
                     onChange={e => setFormData({ ...formData, icon: e.target.value })}
                     placeholder="絵文字を直接自由に入力（例: 👹, 👾）"
-                    style={{ 
-                      flex: 1, 
-                      padding: '8px 12px', 
-                      fontSize: '0.85rem', 
-                      background: 'var(--bg-tertiary)', 
-                      border: '1px solid var(--border-color)', 
-                      borderRadius: '8px', 
+                    style={{
+                      flex: 1,
+                      padding: '8px 12px',
+                      fontSize: '0.85rem',
+                      background: 'var(--bg-tertiary)',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '8px',
                       color: 'var(--text-primary)',
                       textAlign: 'left'
                     }}
                   />
-                  <div style={{ 
-                    fontSize: '1.6rem', 
-                    width: '44px', 
-                    height: '44px', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center', 
-                    background: 'var(--bg-primary)', 
-                    border: `1.5px dashed ${formData.color || 'var(--border-color)'}`, 
+                  <div style={{
+                    fontSize: '1.6rem',
+                    width: '44px',
+                    height: '44px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: 'var(--bg-primary)',
+                    border: `1.5px dashed ${formData.color || 'var(--border-color)'}`,
                     borderRadius: '50%',
                     boxShadow: `0 0 10px ${formData.color}20`,
                     flexShrink: 0
@@ -553,13 +553,13 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
                     {formData.icon || '❓'}
                   </div>
                 </div>
-                
+
                 <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', marginBottom: '6px' }}>
                   💡 クイック選択プリセット:
                 </div>
                 <div className="emoji-selector" style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                   {EMOJI_OPTIONS.map(emoji => (
-                    <button 
+                    <button
                       key={emoji}
                       type="button"
                       className={`emoji-btn ${formData.icon === emoji ? 'active' : ''}`}
@@ -590,9 +590,9 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
                 <label>テーマカラー設定</label>
                 <div className="preset-grid">
                   {COLOR_PRESETS.map((preset, idx) => (
-                    <button 
-                      key={idx} 
-                      type="button" 
+                    <button
+                      key={idx}
+                      type="button"
                       className="preset-btn"
                       onClick={() => selectPreset(preset)}
                       style={{ borderLeft: `6px solid ${preset.primary}` }}
@@ -604,17 +604,17 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
                 <div className="form-row color-pickers">
                   <div className="color-picker-item">
                     <span>メインカラー</span>
-                    <input 
-                      type="color" 
-                      value={formData.color} 
+                    <input
+                      type="color"
+                      value={formData.color}
                       onChange={e => setFormData({ ...formData, color: e.target.value })}
                     />
                   </div>
                   <div className="color-picker-item">
                     <span>背景サブカラー</span>
-                    <input 
-                      type="color" 
-                      value={formData.secondaryColor} 
+                    <input
+                      type="color"
+                      value={formData.secondaryColor}
                       onChange={e => setFormData({ ...formData, secondaryColor: e.target.value })}
                     />
                   </div>
@@ -623,8 +623,8 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
 
               <div className="form-group">
                 <label>紹介文・説明</label>
-                <textarea 
-                  value={formData.description} 
+                <textarea
+                  value={formData.description}
                   onChange={e => setFormData({ ...formData, description: e.target.value })}
                   placeholder="キャラクターの詳しい紹介文を入力してください..."
                   rows="3"
@@ -640,8 +640,8 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
             {/* Live Preview & JSON Copy Column */}
             <div className="admin-preview-col">
               <label className="section-title-label">🔴 リアルタイムカードプレビュー</label>
-              
-              <div 
+
+              <div
                 className="live-preview-card"
                 style={{
                   '--card-glow': formData.color,
@@ -741,12 +741,12 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
                 <div className="tab-header">
                   <label className="section-title-label">💻 登録用JSON出力</label>
                 </div>
-                
+
                 {/* Option A: Full Overwrite JSON (RECOMMENDED) */}
                 <div className="json-box-wrapper">
                   <div className="json-box-header">
                     <span>characters.json にまるごと上書きする用（推奨）</span>
-                    <button 
+                    <button
                       className="copy-btn"
                       onClick={() => copyToClipboard(fullMergedJson, 'full')}
                     >
@@ -761,7 +761,7 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
                 <div className="json-box-wrapper">
                   <div className="json-box-header">
                     <span>末尾に追加する用 (1体分)</span>
-                    <button 
+                    <button
                       className="copy-btn"
                       onClick={() => copyToClipboard(singleJson, 'single')}
                     >
@@ -892,7 +892,7 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
           font-weight: 600;
         }
 
-        .form-group input, 
+        .form-group input,
         .form-group textarea,
         .form-group select {
           background: var(--bg-tertiary);
@@ -905,7 +905,7 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
           transition: var(--transition-smooth);
         }
 
-        .form-group input:focus, 
+        .form-group input:focus,
         .form-group textarea:focus {
           border-color: var(--accent-neon-yellow);
           box-shadow: 0 0 8px rgba(226, 249, 0, 0.15);

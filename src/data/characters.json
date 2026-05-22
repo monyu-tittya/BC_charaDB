@@ -17,17 +17,17 @@
       "YouTuber"
     ],
     "description": "魔界からやってきた悪魔系YouTuber。人間の裏の顔や隠された本性を暴く「鬼ヤバ」な動画を撮影・公開している。",
-    "color": "#e2f900",
-    "secondaryColor": "#151800",
+    "color": "#ff0055",
+    "secondaryColor": "#1a0009",
     "icon": "😈",
     "relationships": {
       "camera": {
         "call": "カメラちゃん",
-        "relation": "優秀な相棒・撮影＆編集係"
+        "relation": "相棒"
       },
       "satoshi": {
-        "call": "さとし",
-        "relation": "メイン契約者"
+        "call": "さとしくん",
+        "relation": "相方"
       }
     }
   },
@@ -37,8 +37,8 @@
     "kana": "かめらちゃん",
     "role": "ブラックの助手",
     "age": "不明",
-    "gender": "不明",
-    "height": 20,
+    "gender": "男",
+    "height": "",
     "birthday": "11月30日",
     "firstPerson": "？",
     "laugh": "じじじっ",
@@ -48,14 +48,14 @@
       "小悪魔",
       "撮影・編集係"
     ],
-    "description": "ブラックの相棒であり、超高性能な撮影他様々な機能を持つ。動画の撮影と編集を完璧にこなす。",
-    "color": "#ff0055",
+    "description": "ブラックの相棒であり、超高性能な機能を多々持つ。動画の撮影と編集を完璧にこなす。",
+    "color": "#e2f900",
     "secondaryColor": "#1a0009",
     "icon": "📹",
     "relationships": {
       "black": {
         "call": "ブラック",
-        "relation": "信頼してる"
+        "relation": "相棒"
       },
       "satoshi": {
         "call": "さとし",
@@ -68,7 +68,7 @@
     "name": "さとし",
     "kana": "さとし",
     "role": "クソザコ小学生",
-    "age": "11歳（小学5年生）",
+    "age": "11歳（小5）",
     "gender": "男",
     "height": 142,
     "birthday": "12月26日",
@@ -80,20 +80,53 @@
       "小学生",
       "好奇心旺盛",
       "トラブルメーカー",
-      "驚異的なタフさ"
+      "悪運が強い"
     ],
-    "description": "ブラックの動画の常連である、普通のクソザコ小学生。ブラックの提案に興味本位で手を出しては、いつも鬼ヤバな目に遭っている。痛い目を見ることも多いが、へこたれないタフさとやさしさを併せ持つ。",
+    "description": "ブラックの相方。普通のクソザコ小学生。ブラックの提案に乗っては、いつも鬼ヤバな目に遭っている。",
     "color": "#00d2ff",
     "secondaryColor": "#00141a",
     "icon": "👦",
     "relationships": {
       "black": {
         "call": "ブラック",
-        "relation": "鬼ヤバだけど信頼してる"
+        "relation": "信頼"
       },
       "camera": {
         "call": "カメラちゃん",
         "relation": "かわいい"
+      }
+    }
+  },
+  {
+    "id": "white",
+    "name": "ホワイト",
+    "kana": "ほわいと",
+    "role": "神",
+    "age": "不明",
+    "gender": "男",
+    "height": 172,
+    "birthday": "4月6日",
+    "firstPerson": "ワイ",
+    "laugh": "",
+    "catchphrase": "",
+    "ending": "",
+    "traits": [],
+    "description": "",
+    "color": "#ffffff",
+    "secondaryColor": "#00141a",
+    "icon": "🔷",
+    "relationships": {
+      "black": {
+        "call": "ブラック",
+        "relation": "ライバル"
+      },
+      "camera": {
+        "call": "カメラ",
+        "relation": "カメラ"
+      },
+      "satoshi": {
+        "call": "さとし",
+        "relation": "クソガキ"
       }
     }
   }
