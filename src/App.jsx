@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, SlidersHorizontal, Plus, List, BarChart3, X, Sparkles, HelpCircle } from 'lucide-react';
+import { Search, SlidersHorizontal, Plus, List, BarChart3, X, Sparkles, HelpCircle, Network } from 'lucide-react';
 import initialCharacters from './data/characters.json';
 import HeightChart from './components/HeightChart';
 import AdminHelper from './components/AdminHelper';
+import CorrelationMap from './components/CorrelationMap';
 
 export default function App() {
   const [characters, setCharacters] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('list'); // 'list' or 'chart'
+  const [activeTab, setActiveTab] = useState('list'); // 'list', 'chart', 'correlation'
   const [selectedGender, setSelectedGender] = useState('all');
   const [selectedRole, setSelectedRole] = useState('all');
   
@@ -26,19 +27,18 @@ export default function App() {
   // Filter list
   const filteredCharacters = useMemo(() => {
     return characters.filter(char => {
-      // Search text (Name, Kana, Role, Description)
+      // Search text (Name, Kana, Role, Description, Traits)
       const matchesSearch = 
         char.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         char.kana.toLowerCase().includes(searchQuery.toLowerCase()) ||
         char.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (char.traits && char.traits.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()))) ||
         char.description.toLowerCase().includes(searchQuery.toLowerCase());
       
       // Gender filter
       const matchesGender = 
         selectedGender === 'all' || 
-        (selectedGender === 'male' && char.gender.includes('男')) ||
-        (selectedGender === 'female' && char.gender.includes('女')) ||
-        (selectedGender === 'demon' && char.gender.includes('悪魔'));
+        char.gender === selectedGender;
 
       // Role filter
       const matchesRole = 
@@ -94,7 +94,7 @@ export default function App() {
           onClick={() => setActiveTab('list')}
         >
           <List size={16} />
-          <span>キャラ一覧 ({filteredCharacters.length})</span>
+          <span>一覧 ({filteredCharacters.length})</span>
           {activeTab === 'list' && <div className="tab-indicator" />}
         </button>
         <button 
@@ -102,15 +102,23 @@ export default function App() {
           onClick={() => setActiveTab('chart')}
         >
           <BarChart3 size={16} />
-          <span>身長見比べグラフ</span>
+          <span>身長比較</span>
           {activeTab === 'chart' && <div className="tab-indicator" />}
+        </button>
+        <button 
+          className={`tab-btn ${activeTab === 'correlation' ? 'active' : ''}`}
+          onClick={() => setActiveTab('correlation')}
+        >
+          <Network size={16} />
+          <span>相関図</span>
+          {activeTab === 'correlation' && <div className="tab-indicator" />}
         </button>
       </div>
 
       {/* Content Area */}
       <main className="app-main-content">
         
-        {activeTab === 'list' ? (
+        {activeTab === 'list' && (
           <>
             {/* Search and Filters */}
             <div className="filters-container fade-in">
@@ -132,7 +140,7 @@ export default function App() {
 
               {/* Advanced Filter Pills */}
               <div className="filter-pills-row">
-                <span className="filter-label"><SlidersHorizontal size={12} /> 属性:</span>
+                <span className="filter-label"><SlidersHorizontal size={12} /> 性別:</span>
                 <div className="pill-group">
                   <button 
                     className={`pill-btn ${selectedGender === 'all' ? 'active' : ''}`}
@@ -141,22 +149,22 @@ export default function App() {
                     すべて
                   </button>
                   <button 
-                    className={`pill-btn ${selectedGender === 'demon' ? 'active' : ''}`}
-                    onClick={() => setSelectedGender('demon')}
+                    className={`pill-btn ${selectedGender === '男' ? 'active' : ''}`}
+                    onClick={() => setSelectedGender('男')}
                   >
-                    悪魔
+                    男
                   </button>
                   <button 
-                    className={`pill-btn ${selectedGender === 'male' ? 'active' : ''}`}
-                    onClick={() => setSelectedGender('male')}
+                    className={`pill-btn ${selectedGender === '女' ? 'active' : ''}`}
+                    onClick={() => setSelectedGender('女')}
                   >
-                    男性
+                    女
                   </button>
                   <button 
-                    className={`pill-btn ${selectedGender === 'female' ? 'active' : ''}`}
-                    onClick={() => setSelectedGender('female')}
+                    className={`pill-btn ${selectedGender === '不明' ? 'active' : ''}`}
+                    onClick={() => setSelectedGender('不明')}
                   >
-                    女性
+                    不明
                   </button>
                 </div>
               </div>
@@ -209,10 +217,17 @@ export default function App() {
               </div>
             )}
           </>
-        ) : (
-          /* Height Visualizer Tab */
+        )}
+
+        {activeTab === 'chart' && (
           <div className="chart-tab-content">
             <HeightChart characters={characters} />
+          </div>
+        )}
+
+        {activeTab === 'correlation' && (
+          <div className="correlation-tab-content">
+            <CorrelationMap characters={characters} />
           </div>
         )}
       </main>
@@ -244,6 +259,22 @@ export default function App() {
                 </span>
                 <h2 className="sheet-name" style={{ color: activeDetailChar.color }}>{activeDetailChar.name}</h2>
                 <span className="sheet-kana">{activeDetailChar.kana}</span>
+                {/* Traits Row */}
+                <div className="sheet-traits-row">
+                  {(activeDetailChar.traits || []).map((tag, idx) => (
+                    <span 
+                      key={idx} 
+                      className="sheet-trait-chip" 
+                      style={{ 
+                        color: activeDetailChar.color, 
+                        borderColor: `${activeDetailChar.color}35`,
+                        backgroundColor: `${activeDetailChar.color}10` 
+                      }}
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
               </div>
 
               <button className="sheet-close" onClick={() => setActiveDetailChar(null)}>
@@ -284,6 +315,29 @@ export default function App() {
                 <div className="stat-card">
                   <span className="stat-label">性別 (GENDER)</span>
                   <strong className="stat-value">{activeDetailChar.gender || '不明'}</strong>
+                </div>
+              </div>
+
+              {/* Voice & Mannerisms Profile Card */}
+              <div className="voice-profile-section" style={{ borderLeftColor: activeDetailChar.color }}>
+                <h4 className="section-title">🎙️ セリフ・口調の特徴</h4>
+                <div className="voice-grid">
+                  <div className="voice-item">
+                    <span className="voice-label">一人称</span>
+                    <strong className="voice-value">{activeDetailChar.firstPerson || '不明'}</strong>
+                  </div>
+                  <div className="voice-item">
+                    <span className="voice-label">語尾</span>
+                    <strong className="voice-value">{activeDetailChar.ending || '不明'}</strong>
+                  </div>
+                  <div className="voice-item">
+                    <span className="voice-label">笑い方</span>
+                    <strong className="voice-value">{activeDetailChar.laugh || '不明'}</strong>
+                  </div>
+                  <div className="voice-item">
+                    <span className="voice-label">口癖</span>
+                    <strong className="voice-value">{activeDetailChar.catchphrase || '不明'}</strong>
+                  </div>
                 </div>
               </div>
 
@@ -411,7 +465,7 @@ export default function App() {
         /* Tabs Navigation */
         .tab-navigation {
           display: grid;
-          grid-template-columns: 1fr 1fr;
+          grid-template-columns: repeat(3, 1fr);
           border-bottom: 1px solid var(--border-color);
           background: var(--bg-secondary);
         }
@@ -917,6 +971,66 @@ export default function App() {
         .sheet-footer-close-btn:hover {
           filter: brightness(1.1);
           transform: translateY(-1px);
+        }
+
+        /* Detail Sheet tags & voice fields styles */
+        .sheet-traits-row {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+          margin-top: 6px;
+        }
+
+        .sheet-trait-chip {
+          font-size: 0.58rem;
+          font-weight: bold;
+          padding: 1px 8px;
+          border-radius: 10px;
+          border: 1px solid;
+          letter-spacing: 0.5px;
+        }
+
+        .voice-profile-section {
+          background: var(--bg-tertiary);
+          border: 1px solid var(--border-color);
+          border-left: 3px solid;
+          border-radius: 10px;
+          padding: 12px;
+          margin-bottom: 14px;
+        }
+
+        .voice-profile-section .section-title {
+          font-size: 0.72rem;
+          color: var(--text-primary);
+          margin-bottom: 8px;
+          letter-spacing: 0.5px;
+        }
+
+        .voice-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 8px;
+        }
+
+        .voice-item {
+          background: rgba(0, 0, 0, 0.25);
+          border: 1px solid rgba(255, 255, 255, 0.02);
+          border-radius: 6px;
+          padding: 6px 10px;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .voice-label {
+          font-size: 0.52rem;
+          color: var(--text-muted);
+          font-weight: 700;
+        }
+
+        .voice-value {
+          font-size: 0.7rem;
+          color: var(--text-primary);
+          margin-top: 1px;
         }
 
         /* Footer info */

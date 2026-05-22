@@ -5,13 +5,36 @@
     "kana": "ぶらっく",
     "role": "悪魔YouTuber",
     "age": "悪魔年齢 53万歳以上",
-    "gender": "男（悪魔）",
+    "gender": "男",
     "height": 142,
     "birthday": "9月6日",
+    "firstPerson": "オレ",
+    "laugh": "クハハハ！",
+    "catchphrase": "鬼ヤバ動画、配信スタート！",
+    "ending": "〜だ、〜ぜ",
+    "traits": ["悪魔", "YouTuber", "契約者殺し", "エマ（魂）好き"],
     "description": "魔界からやってきた悪魔のYouTuber。人間の裏の顔や隠された本性を暴く「鬼ヤバ」な動画を撮影・公開している。欲望にまみれた人間と契約を交わし、不思議な力で願いを叶えるが、最終的には破滅（奈落の底）へと導く。大好物は人間の魂のエネルギー「エマ」。",
     "color": "#e2f900",
     "secondaryColor": "#151800",
-    "icon": "😈"
+    "icon": "😈",
+    "relationships": {
+      "camera": {
+        "call": "カメラちゃん",
+        "relation": "優秀な相棒・動画の撮影＆編集係"
+      },
+      "satoshi": {
+        "call": "さとし",
+        "relation": "動画のメイン契約者（エマの供給源）"
+      },
+      "shogo": {
+        "call": "しょうご",
+        "relation": "さとしの連れ（よく巻き添えにする）"
+      },
+      "purana": {
+        "call": "プラナ",
+        "relation": "目障りで偽善的なライバル天使YouTuber"
+      }
+    }
   },
   {
     "id": "camera",
@@ -19,13 +42,36 @@
     "kana": "かめらちゃん",
     "role": "ブラックの助手",
     "age": "不明",
-    "gender": "女（悪魔カメラ）",
+    "gender": "女",
     "height": 128,
     "birthday": "11月30日",
+    "firstPerson": "わたし",
+    "laugh": "ウフフ♪",
+    "catchphrase": "本日の撮影も完璧です、ブラック様！",
+    "ending": "〜です、〜ます",
+    "traits": ["悪魔カメラ", "撮影・編集", "忠実な助手", "美少女形態あり"],
     "description": "ブラックの相棒であり、超高性能な意思を持つ魔界のカメラ。動画の撮影と編集を完璧にこなす。普段は一つ目の浮遊するカメラ姿だが、人間の少女のような可愛い姿（人間形態）に変身することもできる。ブラックに非常に忠実で、彼の動画制作を全力でサポートする。",
     "color": "#ff0055",
     "secondaryColor": "#1a0009",
-    "icon": "📹"
+    "icon": "📹",
+    "relationships": {
+      "black": {
+        "call": "ブラック様",
+        "relation": "忠誠を誓い、密かに愛するご主人様"
+      },
+      "satoshi": {
+        "call": "さとし君",
+        "relation": "いつも酷い動画のオチに使われる契約者"
+      },
+      "shogo": {
+        "call": "しょうご君",
+        "relation": "さとし君と一緒に巻き込まれる常識人"
+      },
+      "purana": {
+        "call": "プラナ",
+        "relation": "ブラック様の邪魔をする小賢しい天敵天使"
+      }
+    }
   },
   {
     "id": "satoshi",
@@ -36,10 +82,33 @@
     "gender": "男",
     "height": 145,
     "birthday": "5月10日",
+    "firstPerson": "オレ",
+    "laugh": "あはは！",
+    "catchphrase": "ブラック！もっと鬼ヤバなことしようぜ！",
+    "ending": "〜だよ、〜じゃん",
+    "traits": ["小学生", "好奇心旺盛", "トラブルメーカー", "驚異的なタフさ"],
     "description": "ブラックの動画の常連である、好奇心旺盛な小学5年生。ブラックの出す悪魔のアイテムやゲームに興味本位で手を出しては、いつも鬼ヤバな目に遭っている。痛い目を見ることも多いが、へこたれないタフさと楽天的な性格の持ち主。",
     "color": "#00d2ff",
     "secondaryColor": "#00141a",
-    "icon": "👦"
+    "icon": "👦",
+    "relationships": {
+      "black": {
+        "call": "ブラック",
+        "relation": "鬼ヤバなゲームや道具をくれる悪魔"
+      },
+      "camera": {
+        "call": "カメラちゃん",
+        "relation": "ブラックの相棒カメラ"
+      },
+      "shogo": {
+        "call": "しょうご",
+        "relation": "一番の親友でクラスメイト"
+      },
+      "purana": {
+        "call": "プラナちゃん",
+        "relation": "ブラックのライバルで優しい天使の姉ちゃん"
+      }
+    }
   },
   {
     "id": "shogo",
@@ -50,10 +119,29 @@
     "gender": "男",
     "height": 152,
     "birthday": "8月20日",
+    "firstPerson": "僕",
+    "laugh": "えへへ…",
+    "catchphrase": "さとし、それ本当に大丈夫かなぁ…？",
+    "ending": "〜だよ、〜かな",
+    "traits": ["小学生", "常識人", "ビビリ", "友情に厚い"],
     "description": "さとしのクラスメイトであり一番の親友。さとしと一緒にブラックの動画に巻き込まれることが多い。比較的常識人でビビリな性格のため、さとしの無茶な行動に振り回されるストッパー役だが、友情には厚い。",
     "color": "#39ff14",
     "secondaryColor": "#051a02",
-    "icon": "🧢"
+    "icon": "🧢",
+    "relationships": {
+      "black": {
+        "call": "ブラックさん",
+        "relation": "いつもさとしにヤバいものを渡す怖い悪魔"
+      },
+      "camera": {
+        "call": "カメラちゃん",
+        "relation": "ブラックさんの相棒カメラ"
+      },
+      "satoshi": {
+        "call": "さとし",
+        "relation": "トラブルばかり起こす放っておけない大親友"
+      }
+    }
   },
   {
     "id": "purana",
@@ -61,12 +149,31 @@
     "kana": "ぷらな",
     "role": "天使YouTuber",
     "age": "天使年齢 10万歳以上",
-    "gender": "女（天使）",
+    "gender": "女",
     "height": 138,
     "birthday": "10月4日",
+    "firstPerson": "私（わたくし）",
+    "laugh": "オ〜ホッホッホ！",
+    "catchphrase": "皆様に、極上の癒やしと救いをお届けしますわ！",
+    "ending": "〜ですわ、〜ますわ",
+    "traits": ["天使", "YouTuber", "腹黒", "実は超戦闘的"],
     "description": "天界からやってきた天使のYouTuber。ブラックのライバル。人々を癒やし救う動画を投稿して人気を集めているが、裏ではブラックに激しい対抗心を燃やしており、ブラックの悪魔的な企みを阻止しようと躍起になっている。",
     "color": "#ffffff",
     "secondaryColor": "#222222",
-    "icon": "👼"
+    "icon": "👼",
+    "relationships": {
+      "black": {
+        "call": "ブラック",
+        "relation": "人々の魂を奪う悪魔YouTuber（激しく対立）"
+      },
+      "camera": {
+        "call": "カメラちゃん",
+        "relation": "ブラックに仕える邪魔な使い魔カメラ"
+      },
+      "satoshi": {
+        "call": "さとし君",
+        "relation": "悪魔に目をつけられた、私が救うべき男の子"
+      }
+    }
   }
 ]

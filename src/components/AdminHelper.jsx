@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Copy, Check, Sparkles, X, PlusCircle, RefreshCw } from 'lucide-react';
+import { Copy, Check, Sparkles, X, PlusCircle, RefreshCw, Network } from 'lucide-react';
 
 const EMOJI_OPTIONS = ["😈", "📹", "👦", "🧢", "👼", "🦊", "🐈", "👩", "👨", "🌟", "🔥", "🔮", "🎒", "🎮", "💀"];
 const COLOR_PRESETS = [
@@ -18,15 +18,25 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
     kana: '',
     role: '',
     age: '',
-    gender: '',
+    gender: '男',
     height: 140,
     birthday: '',
+    firstPerson: '',
+    laugh: '',
+    catchphrase: '',
+    ending: '',
+    traits: [],
     description: '',
     color: '#e2f900',
     secondaryColor: '#151800',
-    icon: '😈'
+    icon: '😈',
+    relationships: {}
   });
 
+  const [traitsInput, setTraitsInput] = useState('');
+  const [relCharId, setRelCharId] = useState('');
+  const [relCall, setRelCall] = useState('');
+  const [relRelation, setRelRelation] = useState('');
   const [copiedType, setCopiedType] = useState(null); // 'single' or 'full'
 
   // Generate ID from romaji or random if empty
@@ -45,6 +55,45 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
       color: preset.primary,
       secondaryColor: preset.secondary
     }));
+  };
+
+  const handleTraitsChange = (val) => {
+    setTraitsInput(val);
+    const arr = val.split(/[,,、\s]+/).map(t => t.trim()).filter(Boolean);
+    setFormData(prev => ({ ...prev, traits: arr }));
+  };
+
+  const handleAddRelationship = () => {
+    if (!relCharId) {
+      alert('関係を設定するキャラクターを選択してください。');
+      return;
+    }
+    if (!relCall.trim() || !relRelation.trim()) {
+      alert('呼び方と関係性を入力してください。');
+      return;
+    }
+
+    setFormData(prev => {
+      const updatedRelationships = {
+        ...prev.relationships,
+        [relCharId]: {
+          call: relCall.trim(),
+          relation: relRelation.trim()
+        }
+      };
+      return { ...prev, relationships: updatedRelationships };
+    });
+
+    setRelCall('');
+    setRelRelation('');
+  };
+
+  const handleRemoveRelationship = (charIdToDelete) => {
+    setFormData(prev => {
+      const updated = { ...prev.relationships };
+      delete updated[charIdToDelete];
+      return { ...prev, relationships: updated };
+    });
   };
 
   // Single JSON structure
@@ -138,12 +187,15 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
                 </div>
                 <div className="form-group">
                   <label>性別</label>
-                  <input 
-                    type="text" 
+                  <select 
                     value={formData.gender} 
                     onChange={e => setFormData({ ...formData, gender: e.target.value })}
-                    placeholder="例: 男（悪魔）"
-                  />
+                    required
+                  >
+                    <option value="男">男</option>
+                    <option value="女">女</option>
+                    <option value="不明">不明</option>
+                  </select>
                 </div>
               </div>
 
@@ -178,6 +230,165 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
                   onChange={e => setFormData({ ...formData, age: e.target.value })}
                   placeholder="例: 悪魔年齢53万歳"
                 />
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>一人称</label>
+                  <input 
+                    type="text" 
+                    value={formData.firstPerson} 
+                    onChange={e => setFormData({ ...formData, firstPerson: e.target.value })}
+                    placeholder="例: オレ、わたし"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>笑い方</label>
+                  <input 
+                    type="text" 
+                    value={formData.laugh} 
+                    onChange={e => setFormData({ ...formData, laugh: e.target.value })}
+                    placeholder="例: クハハハ！、ウフフ♪"
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>口癖・決め台詞</label>
+                  <input 
+                    type="text" 
+                    value={formData.catchphrase} 
+                    onChange={e => setFormData({ ...formData, catchphrase: e.target.value })}
+                    placeholder="例: 鬼ヤバ動画、配信スタート！"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>語尾</label>
+                  <input 
+                    type="text" 
+                    value={formData.ending} 
+                    onChange={e => setFormData({ ...formData, ending: e.target.value })}
+                    placeholder="例: 〜だ、〜ぜ、〜です"
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>特徴タグ (カンマ「,」または「、」区切りで複数入力)</label>
+                <input 
+                  type="text" 
+                  value={traitsInput} 
+                  onChange={e => handleTraitsChange(e.target.value)}
+                  placeholder="例: 悪魔, YouTuber, 契約者殺し"
+                />
+                {formData.traits && formData.traits.length > 0 && (
+                  <div className="preview-traits-pills" style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
+                    {formData.traits.map((t, i) => (
+                      <span key={i} className="trait-pill-preview" style={{ fontSize: '0.65rem', background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: '4px', color: formData.color }}>
+                        #{t}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Relationships editor */}
+              <div className="form-group relationship-editor-section" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '12px', marginTop: '8px' }}>
+                <label style={{ color: 'var(--accent-neon-yellow)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <Network size={14} /> 相関図・キャラクター関係設定
+                </label>
+                <p style={{ fontSize: '0.6rem', color: 'var(--text-muted)', marginBottom: '8px' }}>
+                  他のキャラクターとの関係を設定できます。
+                </p>
+                
+                <div className="relationship-add-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: '6px', alignItems: 'end' }}>
+                  <div className="form-subgroup" style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                    <span style={{ fontSize: '0.6rem', color: 'var(--text-secondary)' }}>対象キャラ</span>
+                    <select 
+                      value={relCharId}
+                      onChange={e => setRelCharId(e.target.value)}
+                      style={{ padding: '6px', fontSize: '0.75rem', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', borderRadius: '6px', color: 'var(--text-primary)' }}
+                    >
+                      <option value="">選択</option>
+                      {currentCharacters && currentCharacters.map(char => (
+                        <option key={char.id} value={char.id}>{char.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div className="form-subgroup" style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                    <span style={{ fontSize: '0.6rem', color: 'var(--text-secondary)' }}>呼称</span>
+                    <input 
+                      type="text" 
+                      value={relCall}
+                      onChange={e => setRelCall(e.target.value)}
+                      placeholder="例: カメラちゃん"
+                      style={{ padding: '6px', fontSize: '0.75rem' }}
+                    />
+                  </div>
+
+                  <div className="form-subgroup" style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                    <span style={{ fontSize: '0.6rem', color: 'var(--text-secondary)' }}>関係</span>
+                    <input 
+                      type="text" 
+                      value={relRelation}
+                      onChange={e => setRelRelation(e.target.value)}
+                      placeholder="例: 優秀な相棒"
+                      style={{ padding: '6px', fontSize: '0.75rem' }}
+                    />
+                  </div>
+
+                  <button 
+                    type="button" 
+                    onClick={handleAddRelationship}
+                    className="add-rel-btn"
+                    style={{
+                      background: 'rgba(226, 249, 0, 0.1)',
+                      border: '1px solid var(--accent-neon-yellow)',
+                      color: 'var(--accent-neon-yellow)',
+                      padding: '6px 10px',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '0.75rem',
+                      fontWeight: 'bold',
+                      height: '32px'
+                    }}
+                  >
+                    追加
+                  </button>
+                </div>
+
+                {/* List of currently set relationships */}
+                {Object.keys(formData.relationships).length > 0 && (
+                  <div className="added-relationships-list" style={{ marginTop: '10px', background: 'rgba(0,0,0,0.2)', padding: '8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <span style={{ fontSize: '0.65rem', display: 'block', marginBottom: '6px', color: 'var(--text-secondary)' }}>設定済みの関係 ({Object.keys(formData.relationships).length}) :</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      {Object.entries(formData.relationships).map(([targetId, info]) => {
+                        const targetChar = currentCharacters.find(c => c.id === targetId);
+                        return (
+                          <div key={targetId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '4px 8px', borderRadius: '4px', borderLeft: `3px solid ${formData.color}` }}>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', fontSize: '0.7rem' }}>
+                              <span style={{ fontWeight: 'bold', color: 'var(--text-primary)' }}>{targetChar ? targetChar.name : targetId}</span>
+                              <span style={{ color: 'var(--text-muted)' }}>呼称:</span>
+                              <span style={{ color: formData.color, fontWeight: 'bold' }}>「{info.call}」</span>
+                              <span style={{ color: 'var(--text-muted)' }}>関係:</span>
+                              <span style={{ color: 'var(--text-primary)' }}>{info.relation}</span>
+                            </div>
+                            <button 
+                              type="button" 
+                              onClick={() => handleRemoveRelationship(targetId)}
+                              style={{ background: 'transparent', border: 'none', color: 'var(--accent-neon-pink)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '2px' }}
+                              title="関係を削除"
+                            >
+                              <X size={12} />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Emoji Icon Selection */}
@@ -265,7 +476,8 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
                 className="live-preview-card"
                 style={{
                   '--card-glow': formData.color,
-                  background: `linear-gradient(135deg, ${formData.secondaryColor || '#111'}, #121217)`
+                  background: `linear-gradient(135deg, ${formData.secondaryColor || '#111'}, #121217)`,
+                  paddingBottom: '20px'
                 }}
               >
                 <div className="preview-card-glow" style={{ backgroundColor: formData.color }} />
@@ -281,13 +493,78 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
                     <span className="preview-kana">{formData.kana || 'かな'}</span>
                   </div>
                 </div>
+
+                {/* Traits preview */}
+                {formData.traits && formData.traits.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '8px' }}>
+                    {formData.traits.map((t, i) => (
+                      <span key={i} style={{ fontSize: '0.6rem', color: formData.color, background: 'rgba(255,255,255,0.05)', padding: '2px 5px', borderRadius: '3px', border: `1px solid ${formData.color}30` }}>
+                        #{t}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
                 <div className="preview-stats">
                   <div><span>身長</span><strong>{formData.height}cm</strong></div>
                   <div><span>誕生日</span><strong>{formData.birthday || '未設定'}</strong></div>
                   <div><span>年齢</span><strong>{formData.age || '未設定'}</strong></div>
                   <div><span>性別</span><strong>{formData.gender || '未設定'}</strong></div>
                 </div>
+
+                {/* Catchphrase speech bubble if exists */}
+                {formData.catchphrase && (
+                  <div style={{
+                    background: 'rgba(255,255,255,0.03)',
+                    borderLeft: `3px solid ${formData.color}`,
+                    padding: '6px 8px',
+                    borderRadius: '4px',
+                    fontSize: '0.65rem',
+                    color: '#fff',
+                    marginBottom: '8px',
+                    fontStyle: 'italic',
+                    position: 'relative'
+                  }}>
+                    「{formData.catchphrase}」
+                  </div>
+                )}
+
+                {/* Mannerisms Grid (firstPerson, laugh, ending) */}
+                {(formData.firstPerson || formData.laugh || formData.ending) && (
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    gap: '4px',
+                    background: 'rgba(0,0,0,0.15)',
+                    padding: '4px',
+                    borderRadius: '4px',
+                    marginBottom: '8px',
+                    fontSize: '0.6rem'
+                  }}>
+                    {formData.firstPerson && <div style={{ textAlign: 'center', color: 'var(--text-muted)' }}>一人称: <span style={{ color: '#fff', fontWeight: 'bold' }}>{formData.firstPerson}</span></div>}
+                    {formData.laugh && <div style={{ textAlign: 'center', color: 'var(--text-muted)' }}>笑い方: <span style={{ color: formData.color, fontWeight: 'bold' }}>{formData.laugh}</span></div>}
+                    {formData.ending && <div style={{ textAlign: 'center', color: 'var(--text-muted)' }}>語尾: <span style={{ color: '#fff', fontWeight: 'bold' }}>{formData.ending}</span></div>}
+                  </div>
+                )}
+
                 <p className="preview-desc">{formData.description || 'ここに説明文が表示されます。'}</p>
+
+                {/* Relationships preview */}
+                {Object.keys(formData.relationships).length > 0 && (
+                  <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1px dashed rgba(255,255,255,0.07)' }}>
+                    <span style={{ fontSize: '0.55rem', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>設定済みの関係性:</span>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                      {Object.entries(formData.relationships).map(([tId, info]) => {
+                        const target = currentCharacters.find(c => c.id === tId);
+                        return (
+                          <span key={tId} style={{ fontSize: '0.55rem', background: 'rgba(0,0,0,0.3)', padding: '2px 4px', borderRadius: '3px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                            <strong style={{ color: formData.color }}>{target ? target.name : tId}</strong> ➔ {info.relation} (呼: {info.call})
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* JSON Exporter */}
