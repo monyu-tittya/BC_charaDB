@@ -55,44 +55,44 @@ export default function CorrelationMap({ characters }) {
     return list;
   }, [nodes]);
 
-  // Secondary bezier curves geometric computations
-  const getCurveData = (x1, y1, x2, y2, hasOpposite) => {
+  // 直線矢印の幾何学計算（双方向の重なり防止のために平行にオフセットし、バルーン位置を分散）
+  const getLineData = (x1, y1, x2, y2, hasOpposite) => {
     const dx = x2 - x1;
     const dy = y2 - y1;
     const len = Math.sqrt(dx * dx + dy * dy);
     
     if (len === 0) return { path: '', labelX: 0, labelY: 0 };
     
-    // Direction vector
+    // 方向ベクトル (Direction vector)
     const ux = dx / len;
     const uy = dy / len;
     
-    // Nodes have a 44px avatar node + borders. Offset starting/ending points to sit on node edges
-    const r = 26; 
-    const sx = x1 + r * ux;
-    const sy = y1 + r * uy;
-    const ex = x2 - r * ux;
-    const ey = y2 - r * uy;
-    
-    // Perpendicular vector for the curve offset (always shift to the right to split bi-directional flows)
+    // 法線ベクトル (Perpendicular vector) - 進行方向の右側
     const vx = -uy;
     const vy = ux;
     
-    // Shift distance: bi-directional lines curve outward, single lines have a subtle curve
-    const offset = hasOpposite ? 18 : 6;
+    // アバターノードのフチでピタッと止めるための半径 (26px)
+    const r = 26; 
     
-    const mx = (sx + ex) / 2;
-    const my = (sy + ey) / 2;
+    // 双方向関係がある場合は 7px 平行にスライドさせて重なりを防止、単方向ならスライドなし (0px)
+    const shift = hasOpposite ? 7 : 0;
     
-    const ctrlX = mx + offset * vx;
-    const ctrlY = my + offset * vy;
+    // 始点と終点の計算
+    const sx = x1 + r * ux + shift * vx;
+    const sy = y1 + r * uy + shift * vy;
+    const ex = x2 - r * ux + shift * vx;
+    const ey = y2 - r * uy + shift * vy;
     
-    // Quadratic Bezier Curve path
-    const path = `M ${sx} ${sy} Q ${ctrlX} ${ctrlY} ${ex} ${ey}`;
+    // 直線パスの生成 (Lコマンド)
+    const path = `M ${sx} ${sy} L ${ex} ${ey}`;
     
-    // Position of the label chip at t = 0.5 (middle of bezier curve)
-    const labelX = 0.25 * sx + 0.5 * ctrlX + 0.25 * ex;
-    const labelY = 0.25 * sy + 0.5 * ctrlY + 0.25 * ey;
+    // バルーンの配置比率 (t)
+    // 双方向関係がある場合はお互いが衝突しないように発信元（始点）寄りの33%の位置に分散配置
+    // 単方向の場合は中央（50%の位置）に配置
+    const t = hasOpposite ? 0.33 : 0.50;
+    
+    const labelX = sx + (ex - sx) * t;
+    const labelY = sy + (ey - sy) * t;
     
     return { path, labelX, labelY };
   };
@@ -162,7 +162,7 @@ export default function CorrelationMap({ characters }) {
 
             {/* Relationship Lines (Arrows) */}
             {connections.map((conn, idx) => {
-              const { path, labelX, labelY } = getCurveData(
+              const { path, labelX, labelY } = getLineData(
                 conn.source.x,
                 conn.source.y,
                 conn.target.x,
@@ -195,19 +195,16 @@ export default function CorrelationMap({ characters }) {
                     markerEnd={`url(#${markerId})`}
                   />
 
-                  {/* Relationship Label Bubble Floating on t=0.5 */}
+                  {/* Relationship Label Bubble Floating on t */}
                   {path && (
-                    <foreignObject x={labelX - 44} y={labelY - 14} width="88" height="28">
+                    <foreignObject x={labelX - 33} y={labelY - 9} width="66" height="18">
                       <div 
                         className="relation-bubble" 
                         style={{ 
                           borderColor: strokeColor,
-                          boxShadow: `0 0 8px ${strokeColor}20` 
+                          boxShadow: `0 0 6px ${strokeColor}20` 
                         }}
                       >
-                        <div className="call-text" style={{ color: strokeColor }}>
-                          「{conn.call}」
-                        </div>
                         <div className="rel-text">
                           {conn.relation}
                         </div>
@@ -380,12 +377,11 @@ export default function CorrelationMap({ characters }) {
 
         /* Label floating bubble */
         .relation-bubble {
-          background: rgba(8, 8, 10, 0.92);
+          background: rgba(8, 8, 10, 0.95);
           border: 1px solid;
-          border-radius: 5px;
-          padding: 3px 4px;
+          border-radius: 12px;
+          padding: 2px 4px;
           display: flex;
-          flex-direction: column;
           justify-content: center;
           align-items: center;
           height: 100%;
@@ -394,21 +390,10 @@ export default function CorrelationMap({ characters }) {
           backdrop-filter: blur(4px);
         }
 
-        .relation-bubble .call-text {
-          font-size: 0.52rem;
-          font-weight: 900;
-          font-family: var(--font-cyber);
-          line-height: 1;
-          margin-bottom: 1px;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          width: 100%;
-        }
-
         .relation-bubble .rel-text {
-          font-size: 0.44rem;
-          color: var(--text-secondary);
+          font-size: 0.48rem;
+          font-weight: bold;
+          color: var(--text-primary);
           line-height: 1.1;
           white-space: nowrap;
           overflow: hidden;

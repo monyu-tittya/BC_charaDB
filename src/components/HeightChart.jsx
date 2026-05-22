@@ -5,6 +5,10 @@ export default function HeightChart({ characters }) {
   const [sortBy, setSortBy] = useState('height-desc'); // 'height-desc', 'height-asc', 'name'
   const [scale, setScale] = useState(1); // Zoom scale for heights to fit better
 
+  // 基準のグリッド高さを 250px とする
+  const baseGridHeight = 250;
+  const gridHeight = baseGridHeight * scale;
+
   // Sort characters
   const sortedCharacters = useMemo(() => {
     const chars = [...characters];
@@ -95,9 +99,9 @@ export default function HeightChart({ characters }) {
         </div>
       </div>
 
-      <div className="chart-viewport-wrapper">
+      <div className="chart-viewport-wrapper" style={{ height: `${gridHeight + 90}px`, transition: 'height 0.3s ease' }}>
         {/* Sticky Y-Axis */}
-        <div className="chart-y-axis">
+        <div className="chart-y-axis" style={{ height: `${gridHeight}px`, transition: 'height 0.3s ease' }}>
           {gridLines.map(height => (
             <div 
               key={height} 
@@ -116,7 +120,7 @@ export default function HeightChart({ characters }) {
           <div className="chart-canvas" style={{ minWidth: `${Math.max(100, characters.length * 80 + 40)}px` }}>
             
             {/* Horizontal Grid Lines */}
-            <div className="grid-lines-bg">
+            <div className="grid-lines-bg" style={{ height: `${gridHeight}px`, transition: 'height 0.3s ease' }}>
               {gridLines.map(height => (
                 <div 
                   key={height} 
@@ -129,7 +133,7 @@ export default function HeightChart({ characters }) {
             </div>
 
             {/* Character Columns */}
-            <div className="columns-container">
+            <div className="columns-container" style={{ height: `${gridHeight}px`, transition: 'height 0.3s ease' }}>
               {sortedCharacters.map((char, index) => {
                 // Calculate percentage height securely (prevent negative or zero heights)
                 const rawPct = ((char.height - minHeightVal) / (maxHeightVal - minHeightVal)) * 100;
@@ -170,8 +174,6 @@ export default function HeightChart({ characters }) {
                       <div 
                         className="glowing-bar" 
                         style={{ 
-                          transform: `scaleY(${scale})`,
-                          transformOrigin: 'bottom',
                           filter: `drop-shadow(0 0 8px ${char.color}60) drop-shadow(0 0 2px ${char.color}80)`
                         }}
                       >
