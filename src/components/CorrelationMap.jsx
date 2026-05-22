@@ -1,449 +1,325 @@
-import React, { useState } from 'react';
-import { ArrowLeftRight, HelpCircle, User, Sparkles, BookOpen, UserCheck } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Sparkles, Heart, ChevronRight } from 'lucide-react';
 
 export default function CorrelationMap({ characters }) {
-  const [mapMode, setMapMode] = useState('story'); // 'story' (物語紹介) or 'individual' (個別ナビ)
+  // Select active character for the bottom profile sheet
   const [focusId, setFocusId] = useState(characters[0]?.id || '');
 
-  const focusChar = characters.find(c => c.id === focusId);
-  const otherChars = characters.filter(c => c.id !== focusId);
+  const focusChar = useMemo(() => {
+    return characters.find(c => c.id === focusId) || characters[0];
+  }, [characters, focusId]);
 
-  if (!focusChar) return null;
+  // Layout calculation for N-gon circle arrangement inside SVG viewBox="0 0 320 280"
+  const nodes = useMemo(() => {
+    const N = characters.length;
+    const cx = 160; // Center X
+    const cy = 130; // Center Y
+    const R = 82;   // Radius
+
+    return characters.map((char, idx) => {
+      // Start from 12 o'clock (-PI / 2) and distribute evenly
+      const angle = (2 * Math.PI * idx) / N - Math.PI / 2;
+      const x = cx + R * Math.cos(angle);
+      const y = cy + R * Math.sin(angle);
+      return { ...char, x, y };
+    });
+  }, [characters]);
+
+  // Calculate connections between characters
+  const connections = useMemo(() => {
+    const list = [];
+    const nodeMap = new Map(nodes.map(n => [n.id, n]));
+
+    nodes.forEach(source => {
+      if (!source.relationships) return;
+      
+      Object.entries(source.relationships).forEach(([targetId, rel]) => {
+        const target = nodeMap.get(targetId);
+        if (!target) return; // Skip if target character no longer exists
+        
+        // Check if there is an opposite relationship to apply appropriate curves
+        const hasOpposite = target.relationships && target.relationships[source.id];
+        
+        list.push({
+          sourceId: source.id,
+          targetId: targetId,
+          source: source,
+          target: target,
+          call: rel.call,
+          relation: rel.relation,
+          hasOpposite: !!hasOpposite
+        });
+      });
+    });
+
+    return list;
+  }, [nodes]);
+
+  // Secondary bezier curves geometric computations
+  const getCurveData = (x1, y1, x2, y2, hasOpposite) => {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    
+    if (len === 0) return { path: '', labelX: 0, labelY: 0 };
+    
+    // Direction vector
+    const ux = dx / len;
+    const uy = dy / len;
+    
+    // Nodes have a 44px avatar node + borders. Offset starting/ending points to sit on node edges
+    const r = 26; 
+    const sx = x1 + r * ux;
+    const sy = y1 + r * uy;
+    const ex = x2 - r * ux;
+    const ey = y2 - r * uy;
+    
+    // Perpendicular vector for the curve offset (always shift to the right to split bi-directional flows)
+    const vx = -uy;
+    const vy = ux;
+    
+    // Shift distance: bi-directional lines curve outward, single lines have a subtle curve
+    const offset = hasOpposite ? 18 : 6;
+    
+    const mx = (sx + ex) / 2;
+    const my = (sy + ey) / 2;
+    
+    const ctrlX = mx + offset * vx;
+    const ctrlY = my + offset * vy;
+    
+    // Quadratic Bezier Curve path
+    const path = `M ${sx} ${sy} Q ${ctrlX} ${ctrlY} ${ex} ${ey}`;
+    
+    // Position of the label chip at t = 0.5 (middle of bezier curve)
+    const labelX = 0.25 * sx + 0.5 * ctrlX + 0.25 * ex;
+    const labelY = 0.25 * sy + 0.5 * ctrlY + 0.25 * ey;
+    
+    return { path, labelX, labelY };
+  };
 
   return (
     <div className="correlation-container fade-in">
-      <div className="chart-header" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '12px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 className="chart-title">
-            <span className="glow-text" style={{ color: 'var(--accent-neon-pink)' }}>CORRELATION MAP</span>
-            <span className="sub-title">相関図・関係性ナビゲーター</span>
-          </h2>
-        </div>
+      {/* Visual Canvas Panel */}
+      <div className="diagram-canvas-panel">
+        <h3 className="panel-title">
+          <span className="glow-text" style={{ color: 'var(--accent-neon-pink)' }}>RELATION FLOW</span>
+          <span className="sub-title">タップしてキャラクターを選択できます</span>
+        </h3>
 
-        {/* モード切替タブ */}
-        <div className="map-mode-tabs" style={{ display: 'flex', background: 'var(--bg-tertiary)', padding: '3px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-          <button 
-            type="button" 
-            className={`map-mode-btn ${mapMode === 'story' ? 'active' : ''}`}
-            onClick={() => setMapMode('story')}
-            style={{
-              flex: 1,
-              background: mapMode === 'story' ? 'rgba(255, 0, 85, 0.08)' : 'transparent',
-              border: 'none',
-              color: mapMode === 'story' ? 'var(--accent-neon-pink)' : 'var(--text-secondary)',
-              padding: '8px',
-              fontSize: '0.75rem',
-              fontWeight: 'bold',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '4px',
-              transition: 'var(--transition-smooth)'
-            }}
-          >
-            <BookOpen size={14} />
-            <span>物語紹介 & 全体相関</span>
-          </button>
-          <button 
-            type="button" 
-            className={`map-mode-btn ${mapMode === 'individual' ? 'active' : ''}`}
-            onClick={() => setMapMode('individual')}
-            style={{
-              flex: 1,
-              background: mapMode === 'individual' ? 'rgba(255, 0, 85, 0.08)' : 'transparent',
-              border: 'none',
-              color: mapMode === 'individual' ? 'var(--accent-neon-pink)' : 'var(--text-secondary)',
-              padding: '8px',
-              fontSize: '0.75rem',
-              fontWeight: 'bold',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '4px',
-              transition: 'var(--transition-smooth)'
-            }}
-          >
-            <UserCheck size={14} />
-            <span>キャラクター個別ナビ</span>
-          </button>
+        <div className="svg-wrapper">
+          <svg viewBox="0 0 320 270" className="relation-svg" style={{ display: 'block', width: '100%', height: 'auto' }}>
+            <defs>
+              {/* Glow filter for paths */}
+              <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="3" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+
+              {/* Dynamic color markers defined dynamically in line strokes */}
+              <marker 
+                id="arrow-black" 
+                viewBox="0 0 10 10" 
+                refX="6" 
+                refY="5" 
+                markerWidth="5" 
+                markerHeight="5" 
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#e2f900" />
+              </marker>
+              <marker 
+                id="arrow-camera" 
+                viewBox="0 0 10 10" 
+                refX="6" 
+                refY="5" 
+                markerWidth="5" 
+                markerHeight="5" 
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#ff0055" />
+              </marker>
+              <marker 
+                id="arrow-satoshi" 
+                viewBox="0 0 10 10" 
+                refX="6" 
+                refY="5" 
+                markerWidth="5" 
+                markerHeight="5" 
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#00d2ff" />
+              </marker>
+            </defs>
+
+            {/* Background cyber grid dots */}
+            <pattern id="dotGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+              <circle cx="2" cy="2" r="0.75" fill="rgba(255,255,255,0.06)" />
+            </pattern>
+            <rect width="100%" height="100%" fill="url(#dotGrid)" />
+
+            {/* Relationship Lines (Arrows) */}
+            {connections.map((conn, idx) => {
+              const { path, labelX, labelY } = getCurveData(
+                conn.source.x,
+                conn.source.y,
+                conn.target.x,
+                conn.target.y,
+                conn.hasOpposite
+              );
+
+              const strokeColor = conn.source.color;
+              const markerId = `arrow-${conn.sourceId}`;
+
+              return (
+                <g key={idx} className="connection-group">
+                  {/* Glowing background path line */}
+                  <path 
+                    d={path} 
+                    fill="none" 
+                    stroke={strokeColor} 
+                    strokeWidth="3" 
+                    opacity="0.1" 
+                    filter="url(#glow)"
+                  />
+                  {/* Primary path line */}
+                  <path 
+                    d={path} 
+                    fill="none" 
+                    stroke={strokeColor} 
+                    strokeWidth="1.2" 
+                    strokeDasharray="4 2"
+                    opacity="0.7"
+                    markerEnd={`url(#${markerId})`}
+                  />
+
+                  {/* Relationship Label Bubble Floating on t=0.5 */}
+                  {path && (
+                    <foreignObject x={labelX - 44} y={labelY - 14} width="88" height="28">
+                      <div 
+                        className="relation-bubble" 
+                        style={{ 
+                          borderColor: strokeColor,
+                          boxShadow: `0 0 8px ${strokeColor}20` 
+                        }}
+                      >
+                        <div className="call-text" style={{ color: strokeColor }}>
+                          「{conn.call}」
+                        </div>
+                        <div className="rel-text">
+                          {conn.relation}
+                        </div>
+                      </div>
+                    </foreignObject>
+                  )}
+                </g>
+              );
+            })}
+
+            {/* Character Nodes (Avatars & Names) */}
+            {nodes.map(char => {
+              const isActive = char.id === focusId;
+              return (
+                <foreignObject key={char.id} x={char.x - 26} y={char.y - 36} width="52" height="72" style={{ overflow: 'visible' }}>
+                  <div 
+                    className={`node-wrapper ${isActive ? 'active' : ''}`}
+                    onClick={() => setFocusId(char.id)}
+                    style={{ '--node-color': char.color }}
+                  >
+                    {/* Ring outer glow */}
+                    <div 
+                      className="node-avatar" 
+                      style={{ 
+                        borderColor: char.color, 
+                        boxShadow: isActive ? `0 0 16px ${char.color}` : `0 0 6px ${char.color}40`,
+                        background: char.secondaryColor || 'var(--bg-tertiary)'
+                      }}
+                    >
+                      <span className="avatar-icon">{char.icon}</span>
+                    </div>
+                    <div className="node-name" style={{ color: char.color }}>
+                      {char.name}
+                    </div>
+                  </div>
+                </foreignObject>
+              );
+            })}
+          </svg>
         </div>
       </div>
 
-      {mapMode === 'story' ? (
-        <div className="story-map-content fade-in" style={{ marginTop: '16px' }}>
-          {/* 物語の紹介 */}
-          <div className="story-intro-card" style={{
-            background: 'linear-gradient(135deg, rgba(255, 0, 85, 0.05), rgba(0, 0, 0, 0.4))',
-            border: '1px solid var(--border-color)',
-            borderLeft: '4px solid var(--accent-neon-pink)',
-            borderRadius: '12px',
-            padding: '14px',
-            marginBottom: '20px'
-          }}>
-            <h3 style={{ color: '#fff', fontSize: '0.85rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 'bold' }}>
-              <Sparkles size={16} style={{ color: 'var(--accent-neon-pink)' }} />
-              ブラックチャンネルの世界観
-            </h3>
-            <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', lineHeight: '1.45', margin: 0 }}>
-              魔界からやってきた悪魔のYouTuber・<strong>ブラック</strong>。彼が目をつけたのは、いたって普通の小学生・<strong>さとし</strong>。<br />
-              二人は「鬼ヤバ動画」を撮影するために契約を結び、裏社会の闇や都市伝説、魔界の不思議に切り込んでいく。使い魔の<strong>カメラちゃん</strong>や、光の天使YouTuber<strong>プラナ</strong>たちを巻き込み、再生数のためなら手段を選ばない鬼ヤバなエンターテイメントが幕を開ける！
-            </p>
-          </div>
-
-          {/* 勢力別関係図 */}
-          <h3 className="section-title-label" style={{ marginBottom: '10px', color: 'var(--text-primary)' }}>👥 主要グループ & 勢力図</h3>
-          
-          <div className="faction-grid" style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '20px' }}>
-            
-            {/* 悪魔YouTuber勢 */}
-            <div className="faction-card" style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(226, 249, 0, 0.15)', borderRadius: '12px', padding: '12px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', borderBottom: '1px dashed rgba(226, 249, 0, 0.2)', paddingBottom: '4px' }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--accent-neon-yellow)' }}>😈 魔界・悪魔YouTuber</span>
-                <span style={{ fontSize: '0.55rem', color: 'var(--text-muted)' }}>目的: 鬼ヤバ動画の撮影 & 再生数稼ぎ</span>
-              </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                {characters.filter(c => c.id === 'black' || c.id === 'camera').map(char => (
-                  <div key={char.id} style={{ flex: 1, background: 'rgba(255,255,255,0.02)', padding: '8px', borderRadius: '8px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.03)' }}>
-                    <span style={{ fontSize: '1.4rem' }}>{char.icon}</span>
-                    <h4 style={{ fontSize: '0.75rem', color: char.color, margin: '2px 0', fontWeight: 'bold' }}>{char.name}</h4>
-                    <span style={{ fontSize: '0.55rem', color: 'var(--text-muted)' }}>{char.role}</span>
-                  </div>
-                ))}
-              </div>
+      {/* Focus Profile Details Panel */}
+      {focusChar && (
+        <div 
+          className="focus-details-card fade-in" 
+          style={{ 
+            borderColor: focusChar.color,
+            boxShadow: `0 0 20px ${focusChar.color}15`,
+            background: `linear-gradient(135deg, ${focusChar.secondaryColor || '#15151b'}, #0f0f12)`
+          }}
+        >
+          <div className="card-top">
+            <div className="card-avatar-pill" style={{ borderColor: focusChar.color }}>
+              <span className="pill-icon">{focusChar.icon}</span>
             </div>
-
-            {/* 境界線 */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', color: 'var(--text-muted)', fontSize: '0.6rem', margin: '2px 0' }}>
-              <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.05)' }} />
-              <span>⚡️ 対立 ＆ 契約 ＆ 友情 ⚡️</span>
-              <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.05)' }} />
-            </div>
-
-            {/* 人間・契約者勢 & 天使YouTuber */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-              {/* 人間・契約者 */}
-              <div className="faction-card" style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(0, 210, 255, 0.15)', borderRadius: '12px', padding: '12px' }}>
-                <div style={{ borderBottom: '1px dashed rgba(0, 210, 255, 0.2)', paddingBottom: '4px', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: 'var(--accent-neon-blue)' }}>👦 人間・契約者勢</span>
-                </div>
-                <div style={{ display: 'flex', gap: '6px', flexDirection: 'column' }}>
-                  {characters.filter(c => c.id === 'satoshi' || c.id === 'shogo').map(char => (
-                    <div key={char.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.02)', padding: '6px', borderRadius: '6px' }}>
-                      <span style={{ fontSize: '1rem' }}>{char.icon}</span>
-                      <div>
-                        <h4 style={{ fontSize: '0.7rem', color: char.color, margin: 0, fontWeight: 'bold' }}>{char.name}</h4>
-                        <span style={{ fontSize: '0.5rem', color: 'var(--text-muted)' }}>{char.role}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* 天使YouTuber */}
-              <div className="faction-card" style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '12px', padding: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                <div>
-                  <div style={{ borderBottom: '1px dashed rgba(255, 255, 255, 0.2)', paddingBottom: '4px', marginBottom: '8px' }}>
-                    <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: '#fff' }}>👼 天界・天使YouTuber</span>
-                  </div>
-                  {characters.filter(c => c.id === 'prana').map(char => (
-                    <div key={char.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.02)', padding: '6px', borderRadius: '6px' }}>
-                      <span style={{ fontSize: '1rem' }}>{char.icon}</span>
-                      <div>
-                        <h4 style={{ fontSize: '0.7rem', color: char.color, margin: 0, fontWeight: 'bold' }}>{char.name}</h4>
-                        <span style={{ fontSize: '0.5rem', color: 'var(--text-muted)' }}>{char.role}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div style={{ fontSize: '0.5rem', color: 'var(--text-muted)', textAlign: 'right', marginTop: '6px' }}>
-                  対抗: 「光」の配信
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-          {/* 主要ストーリーライン関係解説 */}
-          <h3 className="section-title-label" style={{ marginBottom: '10px', color: 'var(--text-primary)' }}>🎬 主要ストーリーライン解説</h3>
-          
-          <div className="story-lines-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            
-            {/* ストーリー 1: ブラック ⇄ さとし */}
-            <div className="story-line-card" style={{
-              background: 'linear-gradient(135deg, rgba(226, 249, 0, 0.03), rgba(0, 210, 255, 0.03))',
-              border: '1px solid rgba(255,255,255,0.04)',
-              borderRadius: '10px',
-              padding: '10px 12px'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                <span style={{ fontSize: '0.65rem', fontWeight: 'bold', color: '#fff', background: 'rgba(255,255,255,0.05)', padding: '2px 6px', borderRadius: '4px' }}>
-                  LINE 01: 悪魔の契約 ＆ 鬼ヤババディ
-                </span>
-                <span style={{ fontSize: '0.55rem', color: 'var(--accent-neon-yellow)', fontWeight: 'bold' }}>契約関係 (魂と引き換え)</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '4px 0' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <span style={{ fontSize: '1.1rem' }}>😈</span>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--accent-neon-yellow)' }}>ブラック</span>
-                </div>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>⇄</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <span style={{ fontSize: '1.1rem' }}>👦</span>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--accent-neon-blue)' }}>さとし</span>
-                </div>
-              </div>
-              <p style={{ fontSize: '0.62rem', color: 'var(--text-secondary)', lineHeight: '1.4', margin: '4px 0 0 0' }}>
-                さとしの「鬼ヤバな動画を撮りたい」という願いと引き換えに、死後の魂をもらう契約を結んだ関係。ブラックが容赦なく仕掛ける過激な状況にさとしは毎回絶叫しつつも、撮影時には見事なコンビネーションを発揮する、切っても切れないバディです。
-              </p>
-            </div>
-
-            {/* ストーリー 2: ブラック ⇄ カメラちゃん */}
-            <div className="story-line-card" style={{
-              background: 'linear-gradient(135deg, rgba(226, 249, 0, 0.03), rgba(255, 0, 85, 0.03))',
-              border: '1px solid rgba(255,255,255,0.04)',
-              borderRadius: '10px',
-              padding: '10px 12px'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                <span style={{ fontSize: '0.65rem', fontWeight: 'bold', color: '#fff', background: 'rgba(255,255,255,0.05)', padding: '2px 6px', borderRadius: '4px' }}>
-                  LINE 02: 悪魔YouTuber ＆ 優秀すぎる相棒
-                </span>
-                <span style={{ fontSize: '0.55rem', color: 'var(--accent-neon-pink)', fontWeight: 'bold' }}>使い魔 (絶対的信頼)</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '4px 0' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <span style={{ fontSize: '1.1rem' }}>😈</span>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--accent-neon-yellow)' }}>ブラック</span>
-                </div>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>⇄</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <span style={{ fontSize: '1.1rem' }}>📹</span>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--accent-neon-pink)' }}>カメラちゃん</span>
-                </div>
-              </div>
-              <p style={{ fontSize: '0.62rem', color: 'var(--text-secondary)', lineHeight: '1.4', margin: '4px 0 0 0' }}>
-                ブラックが魔界から召喚した使い魔であり、撮影機材でもあるカメラの悪魔。ブラックの超次元的な無茶振りを完璧なカメラワークで収めるプロフェッショナル。ブラックが最も信頼を寄せる絶対的な撮影パートナーです。
-              </p>
-            </div>
-
-            {/* ストーリー 3: ブラック ⇄ プラナ */}
-            <div className="story-line-card" style={{
-              background: 'linear-gradient(135deg, rgba(226, 249, 0, 0.03), rgba(255, 255, 255, 0.03))',
-              border: '1px solid rgba(255,255,255,0.04)',
-              borderRadius: '10px',
-              padding: '10px 12px'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                <span style={{ fontSize: '0.65rem', fontWeight: 'bold', color: '#fff', background: 'rgba(255,255,255,0.05)', padding: '2px 6px', borderRadius: '4px' }}>
-                  LINE 03: 闇の悪魔 ⇄ 光の天使ライバル
-                </span>
-                <span style={{ fontSize: '0.55rem', color: '#fff', fontWeight: 'bold' }}>ライバル関係 (配信競合)</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '4px 0' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <span style={{ fontSize: '1.1rem' }}>😈</span>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--accent-neon-yellow)' }}>ブラック</span>
-                </div>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>⇄</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <span style={{ fontSize: '1.1rem' }}>👼</span>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#fff' }}>プラナ</span>
-                </div>
-              </div>
-              <p style={{ fontSize: '0.62rem', color: 'var(--text-secondary)', lineHeight: '1.4', margin: '4px 0 0 0' }}>
-                天界からYouTube配信のために降臨した天使プラナ。ブラックが配信する「闇深く鬼ヤバな動画」に対抗し、自身は「光り輝く健全な動画」を配信。動画のクオリティやチャンネル再生数をめぐって火花を散らすライバル関係です。
-              </p>
-            </div>
-
-            {/* ストーリー 4: さとし ⇄ しょうご */}
-            <div className="story-line-card" style={{
-              background: 'linear-gradient(135deg, rgba(0, 210, 255, 0.03), rgba(57, 255, 20, 0.03))',
-              border: '1px solid rgba(255,255,255,0.04)',
-              borderRadius: '10px',
-              padding: '10px 12px'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                <span style={{ fontSize: '0.65rem', fontWeight: 'bold', color: '#fff', background: 'rgba(255,255,255,0.05)', padding: '2px 6px', borderRadius: '4px' }}>
-                  LINE 04: クラスメイト ＆ オカルト親友
-                </span>
-                <span style={{ fontSize: '0.55rem', color: 'var(--accent-neon-green)', fontWeight: 'bold' }}>親友 (日常の象徴)</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '4px 0' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <span style={{ fontSize: '1.1rem' }}>👦</span>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--accent-neon-blue)' }}>さとし</span>
-                </div>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>⇄</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <span style={{ fontSize: '1.1rem' }}>🧢</span>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--accent-neon-green)' }}>しょうご</span>
-                </div>
-              </div>
-              <p style={{ fontSize: '0.62rem', color: 'var(--text-secondary)', lineHeight: '1.4', margin: '4px 0 0 0' }}>
-                さとしのクラスメイトであり親友。都市伝説や怪奇現象に目がなく、首を突っ込んではブラックの鬼ヤバな動画に巻き込まれます。さとしにとってはブラックとの非日常的な悪魔の契約を隠しながら付き合う、大切な日常の友人です。
-              </p>
-            </div>
-
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-            <button 
-              type="button"
-              className="map-mode-switch-prompt"
-              onClick={() => setMapMode('individual')}
-              style={{
-                background: 'rgba(255, 0, 85, 0.1)',
-                border: '1px solid var(--accent-neon-pink)',
-                color: 'var(--accent-neon-pink)',
-                padding: '8px 16px',
-                borderRadius: '20px',
-                fontSize: '0.7rem',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                transition: 'var(--transition-smooth)',
-                boxShadow: '0 0 8px rgba(255, 0, 85, 0.15)'
-              }}
-            >
-              ➔ 各キャラのさらに詳細な呼び方・関係を見る
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className="individual-map-content fade-in" style={{ marginTop: '16px' }}>
-          {/* Character Selector Bubbles */}
-          <div className="focus-selector-scroll">
-            <div className="focus-selector">
-              {characters.map(char => (
-                <button 
-                  key={char.id}
-                  className={`focus-bubble-btn ${focusId === char.id ? 'active' : ''}`}
-                  onClick={() => setFocusId(char.id)}
-                  style={{ 
-                    '--char-color': char.color,
-                    borderColor: focusId === char.id ? char.color : 'rgba(255,255,255,0.08)',
-                    boxShadow: focusId === char.id ? `0 0 12px ${char.color}40` : 'none'
-                  }}
-                >
-                  <div className="bubble-avatar">{char.icon}</div>
-                  <span className="bubble-name">{char.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Focus Character Hero Banner */}
-          <div 
-            className="focus-hero-card"
-            style={{
-              borderLeft: `5px solid ${focusChar.color}`,
-              background: `linear-gradient(135deg, ${focusChar.secondaryColor || '#111'}, #121217)`
-            }}
-          >
-            <div className="hero-avatar">{focusChar.icon}</div>
-            <div className="hero-info">
-              <span className="hero-badge" style={{ color: focusChar.color, borderColor: `${focusChar.color}30` }}>
-                中心キャラクター
+            <div className="card-title-group">
+              <span className="card-badge" style={{ color: focusChar.color, borderColor: `${focusChar.color}35`, background: `${focusChar.color}08` }}>
+                {focusChar.role}
               </span>
-              <h3 className="hero-name" style={{ color: focusChar.color }}>{focusChar.name}</h3>
-              <p className="hero-role">{focusChar.role}</p>
+              <h4 className="card-name" style={{ color: focusChar.color }}>
+                {focusChar.name}
+              </h4>
+            </div>
+            <div className="card-meta">
+              <span className="meta-item">📏 {focusChar.height}cm</span>
+              <span className="meta-item">🎂 {focusChar.birthday}</span>
             </div>
           </div>
 
-          {/* Relationships Timeline/List */}
-          <div className="relationships-list">
-            {otherChars.map(targetChar => {
-              // Focus -> Target relationship
-              const relFromFocus = focusChar.relationships?.[targetChar.id];
-              // Target -> Focus relationship
-              const relToFocus = targetChar.relationships?.[focusChar.id];
+          <div className="card-divider" style={{ background: `linear-gradient(to right, ${focusChar.color}30, transparent)` }} />
 
-              return (
-                <div 
-                  key={targetChar.id} 
-                  className="rel-card fade-in"
-                  style={{
-                    '--grad-start': `${focusChar.color}15`,
-                    '--grad-end': `${targetChar.color}15`,
-                    borderLeftColor: focusChar.color,
-                    borderRightColor: targetChar.color
-                  }}
-                >
-                  {/* Target Character Header Mini */}
-                  <div className="rel-target-header">
-                    <div className="rel-mini-avatar" style={{ border: `1px solid ${targetChar.color}` }}>
-                      {targetChar.icon}
-                    </div>
-                    <div>
-                      <h4 className="target-name" style={{ color: targetChar.color }}>{targetChar.name}</h4>
-                      <span className="target-role">{targetChar.role}</span>
-                    </div>
-                    <ArrowLeftRight size={14} className="rel-arrow-icon" style={{ color: 'var(--text-muted)' }} />
-                  </div>
+          {/* Voice Mannerisms profile row */}
+          <div className="mannerisms-grid">
+            <div className="manner-item">
+              <span className="manner-label">一人称</span>
+              <strong className="manner-val">{focusChar.firstPerson || '？'}</strong>
+            </div>
+            <div className="manner-item">
+              <span className="manner-label">笑い方</span>
+              <strong className="manner-val">{focusChar.laugh || '？'}</strong>
+            </div>
+            <div className="manner-item">
+              <span className="manner-label">口癖</span>
+              <strong className="manner-val" style={{ color: focusChar.color }}>
+                {focusChar.catchphrase || '？'}
+              </strong>
+            </div>
+            <div className="manner-item">
+              <span className="manner-label">語尾</span>
+              <strong className="manner-val">{focusChar.ending || '？'}</strong>
+            </div>
+          </div>
 
-                  <div className="rel-grid">
-                    {/* Flow A: Focus Character to Target Character */}
-                    <div className="rel-flow-box">
-                      <div className="flow-header">
-                        <span className="flow-speaker" style={{ color: focusChar.color }}>{focusChar.name}</span>
-                        <span className="flow-arrow">➔</span>
-                        <span className="flow-listener">{targetChar.name}</span>
-                      </div>
-                      {relFromFocus ? (
-                        <div className="flow-content">
-                          <div className="flow-field">
-                            <span className="field-label">呼称</span>
-                            <strong className="field-value call-value" style={{ color: focusChar.color }}>
-                              「{relFromFocus.call}」
-                            </strong>
-                          </div>
-                          <div className="flow-field">
-                            <span className="field-label">関係</span>
-                            <p className="field-value relation-value">{relFromFocus.relation}</p>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flow-empty">
-                          <HelpCircle size={14} />
-                          <span>設定されていません</span>
-                        </div>
-                      )}
-                    </div>
+          <p className="focus-desc-text">
+            {focusChar.description}
+          </p>
 
-                    {/* Flow B: Target Character to Focus Character */}
-                    <div className="rel-flow-box">
-                      <div className="flow-header">
-                        <span className="flow-speaker" style={{ color: targetChar.color }}>{targetChar.name}</span>
-                        <span className="flow-arrow">➔</span>
-                        <span className="flow-listener">{focusChar.name}</span>
-                      </div>
-                      {relToFocus ? (
-                        <div className="flow-content">
-                          <div className="flow-field">
-                            <span className="field-label">呼称</span>
-                            <strong className="field-value call-value" style={{ color: targetChar.color }}>
-                              「{relToFocus.call}」
-                            </strong>
-                          </div>
-                          <div className="flow-field">
-                            <span className="field-label">関係</span>
-                            <p className="field-value relation-value">{relToFocus.relation}</p>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flow-empty">
-                          <HelpCircle size={14} />
-                          <span>設定されていません</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+          <div className="tags-row">
+            {(focusChar.traits || []).map((tag, idx) => (
+              <span 
+                key={idx} 
+                className="tag-chip" 
+                style={{ 
+                  color: focusChar.color, 
+                  borderColor: `${focusChar.color}25`,
+                  background: `${focusChar.color}06`
+                }}
+              >
+                #{tag}
+              </span>
+            ))}
           </div>
         </div>
       )}
@@ -453,276 +329,280 @@ export default function CorrelationMap({ characters }) {
           background-color: var(--bg-secondary);
           border: 1px solid var(--border-color);
           border-radius: 16px;
-          padding: 16px;
+          padding: 14px;
           margin-bottom: 20px;
           box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-        }
-
-        .map-mode-btn {
-          border-bottom: 2px solid transparent !important;
-        }
-
-        .map-mode-btn:hover {
-          color: var(--text-primary) !important;
-          background: rgba(255, 255, 255, 0.02) !important;
-        }
-
-        .map-mode-btn.active {
-          border-color: var(--accent-neon-pink) !important;
-          box-shadow: 0 0 10px rgba(255, 0, 85, 0.15);
-        }
-
-        .focus-selector-scroll {
-          overflow-x: auto;
-          scrollbar-width: none;
-          margin: 0 -16px 16px -16px;
-          padding: 4px 16px;
-        }
-
-        .focus-selector-scroll::-webkit-scrollbar {
-          display: none;
-        }
-
-        .focus-selector {
           display: flex;
-          gap: 10px;
-          width: max-content;
-        }
-
-        .focus-bubble-btn {
-          background: var(--bg-tertiary);
-          border: 1px solid var(--border-color);
-          border-radius: 12px;
-          padding: 6px 12px;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          cursor: pointer;
-          color: var(--text-secondary);
-          transition: var(--transition-bounce);
-          flex-shrink: 0;
-        }
-
-        .focus-bubble-btn:hover {
-          color: var(--text-primary);
-          transform: translateY(-1px);
-        }
-
-        .focus-bubble-btn.active {
-          color: var(--text-primary);
-          background: rgba(255,255,255,0.02);
-        }
-
-        .bubble-avatar {
-          font-size: 1.1rem;
-        }
-
-        .bubble-name {
-          font-size: 0.75rem;
-          font-weight: 700;
-        }
-
-        /* Focus character card */
-        .focus-hero-card {
-          border-radius: 12px;
-          border: 1px solid var(--border-color);
-          padding: 12px 16px;
-          display: flex;
-          align-items: center;
+          flex-direction: column;
           gap: 14px;
-          margin-bottom: 16px;
+        }
+
+        .diagram-canvas-panel {
+          background: var(--bg-primary);
+          border: 1px solid rgba(255,255,255,0.03);
+          border-radius: 12px;
+          padding: 12px;
           position: relative;
         }
 
-        .hero-avatar {
-          font-size: 2.2rem;
-          width: 50px;
-          height: 50px;
+        .panel-title {
+          display: flex;
+          flex-direction: column;
+          margin-bottom: 10px;
+        }
+
+        .panel-title .glow-text {
+          font-family: var(--font-cyber);
+          font-size: 1.05rem;
+          letter-spacing: 1px;
+          font-weight: 800;
+          text-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
+        }
+
+        .panel-title .sub-title {
+          font-size: 0.65rem;
+          color: var(--text-muted);
+          margin-top: 1px;
+        }
+
+        .svg-wrapper {
+          position: relative;
+          background: rgba(0, 0, 0, 0.2);
+          border-radius: 8px;
+          border: 1px solid rgba(255,255,255,0.01);
+          overflow: hidden;
+        }
+
+        /* Vector flows */
+        .connection-group {
+          pointer-events: none;
+        }
+
+        /* Label floating bubble */
+        .relation-bubble {
+          background: rgba(8, 8, 10, 0.92);
+          border: 1px solid;
+          border-radius: 5px;
+          padding: 3px 4px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          height: 100%;
+          text-align: center;
+          box-sizing: border-box;
+          backdrop-filter: blur(4px);
+        }
+
+        .relation-bubble .call-text {
+          font-size: 0.52rem;
+          font-weight: 900;
+          font-family: var(--font-cyber);
+          line-height: 1;
+          margin-bottom: 1px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          width: 100%;
+        }
+
+        .relation-bubble .rel-text {
+          font-size: 0.44rem;
+          color: var(--text-secondary);
+          line-height: 1.1;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          width: 100%;
+        }
+
+        /* SVG Node wrapper */
+        .node-wrapper {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          height: 100%;
+          pointer-events: auto; /* enable click over svg layers */
+        }
+
+        .node-wrapper:hover {
+          transform: scale(1.08);
+        }
+
+        .node-wrapper.active {
+          transform: scale(1.08);
+        }
+
+        .node-avatar {
+          width: 38px;
+          height: 38px;
           border-radius: 50%;
-          background: rgba(255,255,255,0.03);
+          border: 1.5px solid;
           display: flex;
           align-items: center;
           justify-content: center;
+          transition: var(--transition-smooth);
         }
 
-        .hero-info {
-          display: flex;
-          flex-direction: column;
+        .node-wrapper.active .node-avatar {
+          animation: borderGlowPulse 1.5s infinite ease-in-out;
         }
 
-        .hero-badge {
-          font-size: 0.55rem;
-          font-weight: bold;
-          border: 1px solid;
-          border-radius: 4px;
-          padding: 1px 6px;
-          background: rgba(0,0,0,0.3);
-          align-self: flex-start;
-          margin-bottom: 4px;
+        .avatar-icon {
+          font-size: 1.15rem;
+          line-height: 1;
         }
 
-        .hero-name {
-          font-size: 1.05rem;
-          font-weight: 800;
-          letter-spacing: 0.5px;
-          line-height: 1.2;
-        }
-
-        .hero-role {
+        .node-name {
           font-size: 0.65rem;
-          color: var(--text-secondary);
+          font-weight: 800;
+          margin-top: 3px;
+          text-align: center;
+          font-family: var(--font-main);
+          text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+          white-space: nowrap;
         }
 
-        /* Relationships cards list */
-        .relationships-list {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
+        @keyframes borderGlowPulse {
+          0%, 100% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.05);
+          }
         }
 
-        .rel-card {
-          background: linear-gradient(135deg, var(--grad-start), var(--grad-end));
-          border-top: 1px solid var(--border-color);
-          border-bottom: 1px solid var(--border-color);
-          border-left: 3px solid;
-          border-right: 3px solid;
+        /* Details Card Bottom */
+        .focus-details-card {
+          border: 1px solid;
           border-radius: 12px;
           padding: 12px;
           display: flex;
           flex-direction: column;
           gap: 10px;
-          box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+          box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+          position: relative;
+          overflow: hidden;
         }
 
-        .rel-target-header {
+        .card-top {
           display: flex;
           align-items: center;
           gap: 10px;
-          border-bottom: 1px solid rgba(255,255,255,0.03);
-          padding-bottom: 8px;
-          position: relative;
         }
 
-        .rel-mini-avatar {
-          width: 28px;
-          height: 28px;
+        .card-avatar-pill {
+          width: 32px;
+          height: 32px;
           border-radius: 50%;
-          background: var(--bg-tertiary);
+          border: 1.5px solid;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 1rem;
+          background: rgba(255,255,255,0.02);
+          flex-shrink: 0;
         }
 
-        .target-name {
-          font-size: 0.8rem;
-          font-weight: 800;
+        .pill-icon {
+          font-size: 1.1rem;
         }
 
-        .target-role {
-          font-size: 0.6rem;
-          color: var(--text-muted);
-          display: block;
-          margin-top: -2px;
-        }
-
-        .rel-arrow-icon {
-          position: absolute;
-          right: 4px;
-          top: 6px;
-        }
-
-        /* Grid flows */
-        .rel-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 8px;
-        }
-
-        @media (max-width: 400px) {
-          .rel-grid {
-            grid-template-columns: 1fr;
-            gap: 10px;
-          }
-        }
-
-        .rel-flow-box {
-          background: rgba(0, 0, 0, 0.35);
-          border: 1px solid rgba(255,255,255,0.02);
-          border-radius: 8px;
-          padding: 8px 10px;
+        .card-title-group {
+          flex: 1;
           display: flex;
           flex-direction: column;
+          gap: 2px;
+        }
+
+        .card-badge {
+          font-size: 0.52rem;
+          font-weight: 800;
+          border: 1px solid;
+          border-radius: 3px;
+          padding: 0 4px;
+          align-self: flex-start;
+          white-space: nowrap;
+        }
+
+        .card-name {
+          font-size: 0.95rem;
+          font-weight: 900;
+          line-height: 1;
+          font-family: var(--font-main);
+          letter-spacing: 0.25px;
+        }
+
+        .card-meta {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 1px;
+          font-size: 0.6rem;
+          color: var(--text-secondary);
+          font-family: var(--font-cyber);
+          font-weight: bold;
+        }
+
+        .card-divider {
+          height: 1px;
+          width: 100%;
+        }
+
+        /* Personality Grid */
+        .mannerisms-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
           gap: 6px;
         }
 
-        .flow-header {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          font-size: 0.62rem;
-          border-bottom: 1px solid rgba(255,255,255,0.03);
-          padding-bottom: 4px;
-        }
-
-        .flow-speaker {
-          font-weight: 700;
-        }
-
-        .flow-arrow {
-          color: var(--text-muted);
-          font-size: 0.55rem;
-        }
-
-        .flow-listener {
-          color: var(--text-secondary);
-        }
-
-        .flow-content {
+        .manner-item {
+          background: rgba(0,0,0,0.2);
+          border: 1px solid rgba(255,255,255,0.03);
+          border-radius: 6px;
+          padding: 4px;
           display: flex;
           flex-direction: column;
-          gap: 4px;
+          gap: 2px;
+          text-align: center;
         }
 
-        .flow-field {
-          display: flex;
-          flex-direction: column;
-        }
-
-        .field-label {
-          font-size: 0.52rem;
+        .manner-label {
+          font-size: 0.48rem;
           color: var(--text-muted);
           font-weight: bold;
         }
 
-        .field-value {
+        .manner-val {
+          font-size: 0.62rem;
+          color: var(--text-primary);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .focus-desc-text {
           font-size: 0.68rem;
-          line-height: 1.3;
-        }
-
-        .call-value {
-          font-family: var(--font-cyber);
-          font-size: 0.72rem;
-        }
-
-        .relation-value {
           color: var(--text-secondary);
+          line-height: 1.35;
+          margin: 0;
         }
 
-        .flow-empty {
+        .tags-row {
           display: flex;
-          align-items: center;
-          justify-content: center;
+          flex-wrap: wrap;
           gap: 4px;
-          color: var(--text-muted);
-          font-size: 0.6rem;
-          padding: 12px 0;
         }
 
-        .map-mode-switch-prompt:hover {
-          background: var(--accent-neon-pink) !important;
-          color: #000 !important;
-          box-shadow: 0 0 15px rgba(255, 0, 85, 0.4) !important;
+        .tag-chip {
+          font-size: 0.55rem;
+          font-weight: 700;
+          border: 1px solid;
+          border-radius: 4px;
+          padding: 1px 5px;
+          white-space: nowrap;
         }
       `}</style>
     </div>

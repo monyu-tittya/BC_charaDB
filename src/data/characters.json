@@ -23,11 +23,11 @@
     "relationships": {
       "camera": {
         "call": "カメラちゃん",
-        "relation": "優秀な相棒・動画の撮影＆編集係"
+        "relation": "優秀な相棒・撮影＆編集係"
       },
       "satoshi": {
         "call": "さとし",
-        "relation": "動画のメイン契約者"
+        "relation": "メイン契約者"
       }
     }
   },
@@ -37,7 +37,7 @@
     "kana": "かめらちゃん",
     "role": "ブラックの助手",
     "age": "不明",
-    "gender": "男？",
+    "gender": "不明",
     "height": 20,
     "birthday": "11月30日",
     "firstPerson": "？",

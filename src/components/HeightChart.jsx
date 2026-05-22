@@ -139,7 +139,7 @@ export default function HeightChart({ characters }) {
                 const dynamicZIndex = 200 - Math.round(char.height);
                 
                 // 身長に比例して横幅も縮小させることで、低身長キャラ（カメラちゃん）が太って巨大に見えるのを防ぐ
-                const widthScale = Math.max(0.4, Math.min(1.0, char.height / (maxHeightVal || 180)));
+                const widthScale = Math.max(0.25, Math.min(1.0, char.height / (maxHeightVal || 180)));
                 const barWidth = 44 * widthScale;
                 const overlapMargin = -24 * widthScale;
                 
@@ -156,7 +156,13 @@ export default function HeightChart({ characters }) {
                     {/* The Visual Bar */}
                     <div className="bar-wrapper" style={{ height: `${pct}%`, width: `${barWidth}px` }}>
                       {/* Height Indicator Label */}
-                      <div className="column-height-bubble" style={{ borderColor: char.color, transform: `scale(${Math.max(0.8, widthScale)})` }}>
+                      <div 
+                        className="column-height-bubble" 
+                        style={{ 
+                          borderColor: char.color, 
+                          transform: `translateX(-50%) scale(${Math.max(0.8, widthScale)})` 
+                        }}
+                      >
                         {char.height}<span className="unit">cm</span>
                       </div>
 
@@ -420,15 +426,15 @@ export default function HeightChart({ characters }) {
           position: absolute;
           left: 0;
           right: 0;
-          top: 0;
-          height: 100%;
+          bottom: 90px; /* Align with bottom of grid-lines-bg */
+          height: calc(100% - 90px); /* Exactly matches grid height */
           align-items: flex-end;
           padding: 0 15px;
         }
 
         .character-column {
           width: 82px;
-          height: 100%;
+          height: 100%; /* Height is now exactly grid height (250px) */
           display: flex;
           flex-direction: column;
           justify-content: flex-end;
@@ -460,15 +466,13 @@ export default function HeightChart({ characters }) {
 
         /* Bar structures */
         .bar-wrapper {
-          width: 44px; /* Widened for human silhouette proportions, overridden by dynamic inline style */
           position: relative;
           display: flex;
           flex-direction: column;
           justify-content: flex-end;
           align-items: center;
-          margin-bottom: 80px; /* Offset for avatar labels */
-          bottom: 10px;
           transition: width 0.3s ease;
+          overflow: visible; /* Ensure the absolute positioned bubble can be seen */
         }
 
         .column-height-bubble {
@@ -479,6 +483,10 @@ export default function HeightChart({ characters }) {
           background: var(--bg-primary);
           border: 1px solid;
           border-radius: 4px;
+          position: absolute;
+          bottom: 100%; /* Position on top of the bar */
+          left: 50%;
+          transform: translateX(-50%) scale(1);
           margin-bottom: 6px;
           white-space: nowrap;
           z-index: 10; /* Keep above SVGs */
@@ -512,7 +520,7 @@ export default function HeightChart({ characters }) {
         /* Labels */
         .column-label {
           position: absolute;
-          bottom: 8px;
+          bottom: -82px; /* Positioned perfectly in the 90px bottom margin */
           width: 76px;
           display: flex;
           flex-direction: column;
