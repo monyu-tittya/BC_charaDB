@@ -33,17 +33,88 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
     relationships: {}
   });
 
+  const [editMode, setEditMode] = useState('create'); // 'create' or 'edit'
+  const [selectedEditCharId, setSelectedEditCharId] = useState('');
   const [traitsInput, setTraitsInput] = useState('');
   const [relCharId, setRelCharId] = useState('');
   const [relCall, setRelCall] = useState('');
   const [relRelation, setRelRelation] = useState('');
   const [copiedType, setCopiedType] = useState(null); // 'single' or 'full'
 
+  const resetForm = () => {
+    setFormData({
+      id: '',
+      name: '',
+      kana: '',
+      role: '',
+      age: '',
+      gender: '男',
+      height: 140,
+      birthday: '',
+      firstPerson: '',
+      laugh: '',
+      catchphrase: '',
+      ending: '',
+      traits: [],
+      description: '',
+      color: '#e2f900',
+      secondaryColor: '#151800',
+      icon: '😈',
+      relationships: {}
+    });
+    setTraitsInput('');
+    setRelCharId('');
+    setRelCall('');
+    setRelRelation('');
+    setSelectedEditCharId('');
+  };
+
+  const handleModeChange = (mode) => {
+    setEditMode(mode);
+    resetForm();
+  };
+
+  const handleSelectEditChar = (charId) => {
+    setSelectedEditCharId(charId);
+    if (!charId) {
+      resetForm();
+      setEditMode('edit');
+      return;
+    }
+    const char = currentCharacters.find(c => c.id === charId);
+    if (char) {
+      setFormData({
+        id: char.id || '',
+        name: char.name || '',
+        kana: char.kana || '',
+        role: char.role || '',
+        age: char.age || '',
+        gender: char.gender || '男',
+        height: char.height || 140,
+        birthday: char.birthday || '',
+        firstPerson: char.firstPerson || '',
+        laugh: char.laugh || '',
+        catchphrase: char.catchphrase || '',
+        ending: char.ending || '',
+        traits: char.traits || [],
+        description: char.description || '',
+        color: char.color || '#e2f900',
+        secondaryColor: char.secondaryColor || '#151800',
+        icon: char.icon || '😈',
+        relationships: char.relationships || {}
+      });
+      setTraitsInput((char.traits || []).join(', '));
+      setRelCharId('');
+      setRelCall('');
+      setRelRelation('');
+    }
+  };
+
   // Generate ID from romaji or random if empty
   const handleNameChange = (e) => {
+    if (editMode === 'edit') return; // 既存編集時はID自動生成はしない
     const val = e.target.value;
     setFormData(prev => {
-      // Make simple slug ID
       const autoId = prev.id ? prev.id : val.toLowerCase().replace(/[^a-z0-9]/g, '') || `char_${Math.floor(Math.random() * 1000)}`;
       return { ...prev, name: val, id: autoId };
     });
@@ -100,7 +171,22 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
   const singleJson = JSON.stringify(formData, null, 2);
 
   // Full merged JSON structure
-  const fullMergedJson = JSON.stringify([...currentCharacters, formData], null, 2);
+  const fullMergedJson = React.useMemo(() => {
+    if (editMode === 'edit') {
+      const updatedList = currentCharacters.map(char => 
+        char.id === formData.id ? formData : char
+      );
+      return JSON.stringify(updatedList, null, 2);
+    } else {
+      if (currentCharacters.some(c => c.id === formData.id)) {
+        const updatedList = currentCharacters.map(char => 
+          char.id === formData.id ? formData : char
+        );
+        return JSON.stringify(updatedList, null, 2);
+      }
+      return JSON.stringify([...currentCharacters, formData], null, 2);
+    }
+  }, [currentCharacters, formData, editMode]);
 
   const copyToClipboard = (text, type) => {
     navigator.clipboard.writeText(text);
@@ -114,9 +200,9 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
       alert("名前とIDは必須項目です！");
       return;
     }
-    // Add temporarily to view
     onAddTemporarily(formData);
-    alert(`「${formData.name}」を画面上に一時追加しました！下のJSONをコピーして「characters.json」に書き込んでください。`);
+    const actionText = editMode === 'edit' ? '修正' : '一時追加';
+    alert(`「${formData.name}」のデータを一時反映しました！下のJSONをコピーして「characters.json」に書き込んでください。`);
   };
 
   return (
@@ -136,20 +222,59 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
 
         <div className="modal-scroll-area">
           <p className="modal-instruction">
-            ここで新しいキャラクターのステータスを入力すると、<strong>Vercelデプロイ用のJSONコード</strong>が自動生成されます。また、「一時登録」ボタンで即座にアプリに反映させて見比べることも可能です！
+            ここで新しいキャラクターのステータスを入力すると、<strong>Vercelデプロイ用のJSONコード</strong>が自動生成されます。また、「一時反映」ボタンで即座にアプリに反映させて見比べることも可能です！
           </p>
+
+          {/* モード切替タブ */}
+          <div className="mode-tabs">
+            <button 
+              type="button" 
+              className={`mode-tab-btn ${editMode === 'create' ? 'active' : ''}`} 
+              onClick={() => handleModeChange('create')}
+            >
+              新規登録
+            </button>
+            <button 
+              type="button" 
+              className={`mode-tab-btn ${editMode === 'edit' ? 'active' : ''}`} 
+              onClick={() => handleModeChange('edit')}
+            >
+              登録修正
+            </button>
+          </div>
+
+          {/* 編集キャラクター選択セレクトボックス */}
+          {editMode === 'edit' && (
+            <div className="form-group edit-select-group">
+              <label>編集するキャラクターを選択</label>
+              <select 
+                value={selectedEditCharId} 
+                onChange={e => handleSelectEditChar(e.target.value)}
+                className="edit-char-select"
+              >
+                <option value="">-- 選択してください --</option>
+                {currentCharacters.map(char => (
+                  <option key={char.id} value={char.id}>
+                    {char.name} ({char.id})
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div className="admin-columns">
             {/* Form Column */}
             <form className="admin-form" onSubmit={handleSubmit}>
               <div className="form-group">
-                <label>ID (英語・小文字半角、重複不可)</label>
+                <label>ID (英語・小文字半角、重複不可{editMode === 'edit' && ' - 修正時は変更不可'})</label>
                 <input 
                   type="text" 
                   value={formData.id} 
                   onChange={e => setFormData({ ...formData, id: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') })}
                   placeholder="例: satan, black_demon"
                   required
+                  readOnly={editMode === 'edit'}
+                  className={editMode === 'edit' ? 'readonly-input' : ''}
                 />
               </div>
 
@@ -1034,6 +1159,75 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
           max-height: 120px;
           overflow-y: auto;
           border: 1px solid rgba(255,255,255,0.03);
+        }
+
+        .mode-tabs {
+          display: flex;
+          gap: 8px;
+          margin-bottom: 16px;
+          border-bottom: 1px solid var(--border-color);
+          padding-bottom: 12px;
+        }
+
+        .mode-tab-btn {
+          flex: 1;
+          background: var(--bg-tertiary);
+          border: 1px solid var(--border-color);
+          color: var(--text-secondary);
+          padding: 10px;
+          border-radius: 8px;
+          font-weight: bold;
+          font-size: 0.85rem;
+          cursor: pointer;
+          transition: var(--transition-smooth);
+          text-align: center;
+        }
+
+        .mode-tab-btn:hover {
+          color: var(--text-primary);
+          background: rgba(255,255,255,0.03);
+          border-color: var(--text-muted);
+        }
+
+        .mode-tab-btn.active {
+          background: rgba(226, 249, 0, 0.1);
+          border-color: var(--accent-neon-yellow);
+          color: var(--accent-neon-yellow);
+          box-shadow: 0 0 10px rgba(226, 249, 0, 0.1);
+        }
+
+        .edit-select-group {
+          margin-bottom: 20px;
+          animation: fadeIn 0.3s ease-out;
+        }
+
+        .edit-char-select {
+          border-color: var(--accent-neon-pink) !important;
+          background: var(--bg-tertiary);
+          color: var(--text-primary);
+          padding: 10px !important;
+          font-weight: 600;
+        }
+
+        .edit-char-select:focus {
+          box-shadow: 0 0 8px rgba(255, 0, 85, 0.25) !important;
+        }
+
+        .readonly-input {
+          background: rgba(255, 255, 255, 0.02) !important;
+          color: var(--text-muted) !important;
+          cursor: not-allowed !important;
+          border-color: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        .readonly-input:focus {
+          border-color: rgba(255, 255, 255, 0.05) !important;
+          box-shadow: none !important;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-5px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </div>

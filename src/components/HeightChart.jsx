@@ -17,16 +17,47 @@ export default function HeightChart({ characters }) {
     }
   }, [characters, sortBy]);
 
-  // Height ranges
-  const minHeightVal = 80;
-  const maxHeightVal = 180;
-  const step = 10;
+  // 動的に最小値と最大値を決定
+  const { minHeightVal, maxHeightVal, step } = useMemo(() => {
+    if (!characters || characters.length === 0) {
+      return { minHeightVal: 0, maxHeightVal: 180, step: 20 };
+    }
+    
+    const heights = characters.map(c => c.height);
+    const minCharHeight = Math.min(...heights);
+    const maxCharHeight = Math.max(...heights);
+    
+    // 最小値が50cm未満などの極端に小さいキャラがいる場合は0基準にする
+    const rawMin = minCharHeight < 50 ? 0 : Math.max(0, Math.floor(minCharHeight / 10) * 10 - 20);
+    // 最大値は最大キャラより少し上に設定する
+    const rawMax = Math.ceil(maxCharHeight / 10) * 10 + 10;
+    
+    // 範囲の大きさによってステップ幅を調整する
+    const range = rawMax - rawMin;
+    let computedStep = 10;
+    if (range > 150) {
+      computedStep = 20; // 範囲が広い場合は20cm刻み
+    } else if (range > 80) {
+      computedStep = 10; // 通常は10cm刻み
+    } else {
+      computedStep = 5;  // 範囲が狭い場合は5cm刻み
+    }
+    
+    // グリッド線が綺麗になるように rawMin を step の倍数にする
+    const minHeightVal = Math.floor(rawMin / computedStep) * computedStep;
+    const maxHeightVal = Math.ceil(rawMax / computedStep) * computedStep;
+    
+    return { minHeightVal, maxHeightVal, step: computedStep };
+  }, [characters]);
   
-  // Generate background grid lines (from 180 down to 80)
-  const gridLines = [];
-  for (let h = maxHeightVal; h >= minHeightVal; h -= step) {
-    gridLines.push(h);
-  }
+  // Generate background grid lines
+  const gridLines = useMemo(() => {
+    const lines = [];
+    for (let h = maxHeightVal; h >= minHeightVal; h -= step) {
+      lines.push(h);
+    }
+    return lines;
+  }, [minHeightVal, maxHeightVal, step]);
 
   return (
     <div className="height-chart-container fade-in">
@@ -100,8 +131,9 @@ export default function HeightChart({ characters }) {
             {/* Character Columns */}
             <div className="columns-container">
               {sortedCharacters.map((char, index) => {
-                // Calculate percentage height
-                const pct = ((char.height - minHeightVal) / (maxHeightVal - minHeightVal)) * 100;
+                // Calculate percentage height securely (prevent negative or zero heights)
+                const rawPct = ((char.height - minHeightVal) / (maxHeightVal - minHeightVal)) * 100;
+                const pct = Math.max(3, Math.min(100, rawPct));
                 
                 // Calculate stacked order so shorter ones sit in front of taller ones
                 const dynamicZIndex = 200 - Math.round(char.height);
