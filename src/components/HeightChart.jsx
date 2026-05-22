@@ -211,18 +211,6 @@ export default function HeightChart({ characters }) {
                             strokeWidth="3" 
                           />
                         </svg>
-                        
-                        {/* Floating Icon inside bar */}
-                        <div 
-                          className="bar-icon-float" 
-                          style={{ 
-                            top: '12%', 
-                            textShadow: `0 0 8px ${char.color}`,
-                            fontSize: `${0.95 * Math.max(0.7, widthScale)}rem` 
-                          }}
-                        >
-                          {char.icon}
-                        </div>
                       </div>
                     </div>
 
@@ -508,15 +496,6 @@ export default function HeightChart({ characters }) {
           position: relative;
           overflow: visible; /* Need visible for drop shadow outline glow */
           transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.15);
-        }
-
-        .bar-icon-float {
-          position: absolute;
-          left: 50%;
-          transform: translateX(-50%);
-          font-size: 0.95rem;
-          pointer-events: none;
-          z-index: 5;
         }
 
         /* Labels */
