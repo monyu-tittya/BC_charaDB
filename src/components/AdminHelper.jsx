@@ -11,7 +11,7 @@ const COLOR_PRESETS = [
   { name: 'バイオレット', primary: '#bc13fe', secondary: '#13021a' },
 ];
 
-export default function AdminHelper({ currentCharacters, onAddTemporarily, onClose }) {
+export default function AdminHelper({ currentCharacters, onAddTemporarily, onSaveCharacters, onClose }) {
   const [formData, setFormData] = useState({
     id: '',
     name: '',
@@ -40,6 +40,63 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
   const [relCall, setRelCall] = useState('');
   const [relRelation, setRelRelation] = useState('');
   const [copiedType, setCopiedType] = useState(null); // 'single' or 'full'
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleDirectSave = async () => {
+    if (editMode === 'create' && (!formData.name || !formData.id)) {
+      alert("名前とIDは必須項目です！");
+      return;
+    }
+    
+    // 重複チェック（新規作成時のみ）
+    if (editMode === 'create' && currentCharacters.some(c => c.id === formData.id)) {
+      alert(`ID「${formData.id}」は既に登録されています。別のIDを指定するか、登録修正タブをご利用ください。`);
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      // 送信用配列をマージ作成
+      let updatedList = [];
+      if (editMode === 'edit') {
+        updatedList = currentCharacters.map(char =>
+          char.id === formData.id ? formData : char
+        );
+      } else {
+        updatedList = [...currentCharacters, formData];
+      }
+
+      const response = await fetch('/api/save-characters', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedList),
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        alert(`「${formData.name}」のデータをローカルファイルに保存しました！`);
+        
+        // 親の状態を更新
+        if (onSaveCharacters) {
+          onSaveCharacters(updatedList);
+        }
+        
+        // 新規作成時はフォームクリア
+        if (editMode === 'create') {
+          resetForm();
+        }
+      } else {
+        throw new Error(result.error || '保存に失敗しました。');
+      }
+    } catch (err) {
+      console.error(err);
+      alert(`保存エラー: ${err.message}\n※オンライン環境やVite開発サーバーが起動していない場合は、この保存ボタンは動作しません。`);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const resetForm = () => {
     setFormData({
@@ -631,10 +688,56 @@ export default function AdminHelper({ currentCharacters, onAddTemporarily, onClo
                 />
               </div>
 
-              <button type="submit" className="submit-btn">
-                <Sparkles size={16} />
-                <span>この画面上に一時反映して確認する</span>
-              </button>
+              <div className="submit-actions-group" style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
+                <button type="submit" className="submit-btn">
+                  <Sparkles size={16} />
+                  <span>この画面上に一時反映して確認する</span>
+                </button>
+                
+                {import.meta.env.DEV ? (
+                  <button 
+                    type="button" 
+                    className="direct-save-btn" 
+                    onClick={handleDirectSave}
+                    disabled={isSaving}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      padding: '12px',
+                      background: 'linear-gradient(135deg, var(--accent-neon-yellow) 0%, #151800 100%)',
+                      border: '1px solid var(--accent-neon-yellow)',
+                      borderRadius: '8px',
+                      color: '#000',
+                      fontWeight: 'bold',
+                      fontSize: '0.85rem',
+                      cursor: isSaving ? 'not-allowed' : 'pointer',
+                      boxShadow: '0 0 15px rgba(226, 249, 0, 0.4)',
+                      transition: 'all 0.3s ease',
+                      opacity: isSaving ? 0.7 : 1
+                    }}
+                  >
+                    <span>{isSaving ? '💾 保存中...' : '💾 ローカルファイル(json)に直接保存する'}</span>
+                  </button>
+                ) : (
+                  <div 
+                    className="direct-save-disabled-note"
+                    style={{
+                      padding: '10px',
+                      background: 'rgba(255, 255, 255, 0.03)',
+                      border: '1px dashed rgba(255, 255, 255, 0.1)',
+                      borderRadius: '8px',
+                      fontSize: '0.65rem',
+                      color: 'var(--text-muted)',
+                      textAlign: 'center',
+                      lineHeight: '1.4'
+                    }}
+                  >
+                    ⚠️ オンライン(Vercel)環境です。データの更新は右側の生成JSONをコピーしてリポジトリの characters.json に保存してください。
+                  </div>
+                )}
+              </div>
             </form>
 
             {/* Live Preview & JSON Copy Column */}

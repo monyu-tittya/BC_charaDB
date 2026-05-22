@@ -62,6 +62,11 @@ export default function App() {
     });
   };
 
+  // Handle permanent save callback
+  const handleSaveCharacters = (updatedList) => {
+    setCharacters(updatedList);
+  };
+
   return (
     <div className="app-shell">
       {/* Dynamic Background Mesh */}
@@ -368,6 +373,7 @@ export default function App() {
         <AdminHelper 
           currentCharacters={characters} 
           onAddTemporarily={handleAddTemporarily} 
+          onSaveCharacters={handleSaveCharacters}
           onClose={() => setIsAdminOpen(false)}
         />
       )}
