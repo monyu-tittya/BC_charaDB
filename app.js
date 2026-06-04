@@ -47,6 +47,16 @@ const chartContainer = document.getElementById('chart-container');
 const totalCountEl = document.getElementById('total-count');
 const knownHeightCountEl = document.getElementById('known-height-count');
 
+// Calendar DOM Elements
+const prevMonthBtn = document.getElementById('prev-month-btn');
+const nextMonthBtn = document.getElementById('next-month-btn');
+const calendarMonthYear = document.getElementById('calendar-month-year');
+const calendarGridDays = document.getElementById('calendar-grid-days');
+
+// Calendar State
+let currentCalYear = new Date().getFullYear();
+let currentCalMonth = new Date().getMonth() + 1; // 1-12
+
 // Fetch and load character data
 async function loadCharacters() {
   try {
@@ -75,10 +85,30 @@ async function loadCharacters() {
 
 function initApp() {
   renderApp();
+  renderCalendar();
   
   // Set up search event listener
   searchInput.addEventListener('input', () => {
     renderApp();
+  });
+
+  // Calendar Controls
+  prevMonthBtn.addEventListener('click', () => {
+    currentCalMonth--;
+    if (currentCalMonth < 1) {
+      currentCalMonth = 12;
+      currentCalYear--;
+    }
+    renderCalendar();
+  });
+  
+  nextMonthBtn.addEventListener('click', () => {
+    currentCalMonth++;
+    if (currentCalMonth > 12) {
+      currentCalMonth = 1;
+      currentCalYear++;
+    }
+    renderCalendar();
   });
 }
 
@@ -236,6 +266,75 @@ function renderHeightChart(dataList) {
     chartContainer.appendChild(barWrapper);
   });
 }
+
+function renderCalendar() {
+  calendarMonthYear.textContent = `${currentCalYear}年 ${currentCalMonth}月`;
+  calendarGridDays.innerHTML = '';
+  
+  const firstDayIndex = new Date(currentCalYear, currentCalMonth - 1, 1).getDay();
+  const lastDay = new Date(currentCalYear, currentCalMonth, 0).getDate();
+  
+  // Previous month's padding
+  for (let i = 0; i < firstDayIndex; i++) {
+    const emptyCell = document.createElement('div');
+    emptyCell.className = 'calendar-day empty';
+    calendarGridDays.appendChild(emptyCell);
+  }
+  
+  // Current month's days
+  const monthStr = String(currentCalMonth).padStart(2, '0');
+  
+  for (let day = 1; day <= lastDay; day++) {
+    const dayStr = String(day).padStart(2, '0');
+    const bdayKey = `${monthStr}-${dayStr}`;
+    
+    // Find characters born on this day
+    const birthdayPeople = characters.filter(char => char.birthday === bdayKey);
+    
+    const dayCell = document.createElement('div');
+    const dayOfWeek = (firstDayIndex + day - 1) % 7;
+    let dayClass = 'calendar-day';
+    if (dayOfWeek === 0) dayClass += ' sunday';
+    if (dayOfWeek === 6) dayClass += ' saturday';
+    dayCell.className = dayClass;
+    
+    let badgesHTML = '';
+    if (birthdayPeople.length > 0) {
+      badgesHTML = `
+        <div class="calendar-birthdays-container">
+          ${birthdayPeople.map(p => `
+            <div class="calendar-birthday-badge" title="${p.name}の誕生日！クリックで絞り込み" onclick="filterByCharacter('${p.name}')">
+              🎂 ${p.name}
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+    
+    dayCell.innerHTML = `
+      <span class="day-number">${day}</span>
+      ${badgesHTML}
+    `;
+    calendarGridDays.appendChild(dayCell);
+  }
+}
+
+// Global filter helper so it can be called from onclick attribute
+window.filterByCharacter = function(name) {
+  searchInput.value = name;
+  renderApp();
+  // Scroll to character grid or card
+  const card = document.getElementById(`char-card-${name}`);
+  if (card) {
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    card.style.borderColor = 'var(--accent-red)';
+    card.style.boxShadow = 'var(--shadow-neon-red)';
+    setTimeout(() => {
+      card.style.borderColor = '';
+      card.style.boxShadow = '';
+    }, 2000);
+  }
+};
 
 // Start app
 window.addEventListener('DOMContentLoaded', loadCharacters);

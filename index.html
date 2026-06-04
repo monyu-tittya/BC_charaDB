@@ -33,6 +33,21 @@
         <!-- JSで動的に追加されます -->
       </section>
 
+      <section class="calendar-section" id="calendar-section" aria-label="誕生日カレンダー">
+        <h2>Birthday Calendar (誕生日カレンダー)</h2>
+        <div class="calendar-controls">
+          <button id="prev-month-btn" aria-label="前月">&lt;</button>
+          <span id="calendar-month-year">2026年 6月</span>
+          <button id="next-month-btn" aria-label="次月">&gt;</button>
+        </div>
+        <div class="calendar-grid-header">
+          <div>日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div>土</div>
+        </div>
+        <div class="calendar-grid" id="calendar-grid-days">
+          <!-- JSで動的に描画されます -->
+        </div>
+      </section>
+
       <section class="height-section" id="height-section" aria-label="身長比較">
         <h2>Height Comparison Chart (身長比較)</h2>
         <div class="chart-container" id="chart-container">
