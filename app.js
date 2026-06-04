@@ -6,7 +6,8 @@ const fallbackCharacters = [
     "firstPerson": "オレちゃん",
     "catchphrase": "ディス イズ エンターテインメント、ディール、鬼ヤバ",
     "species": "悪魔",
-    "tags": ["つべ"]
+    "tags": ["つべ"],
+    "symbol": "😈"
   },
   {
     "name": "さとし",
@@ -15,7 +16,8 @@ const fallbackCharacters = [
     "firstPerson": "俺",
     "catchphrase": "さとシーサー",
     "species": "人間",
-    "tags": ["つべ"]
+    "tags": ["つべ"],
+    "symbol": "🕶️"
   },
   {
     "name": "カメラちゃん",
@@ -23,8 +25,9 @@ const fallbackCharacters = [
     "birthday": "11-30",
     "firstPerson": "?",
     "catchphrase": "じ〜",
-    "species": "悪魔",
-    "tags": ["つべ"]
+    "species": "小悪魔",
+    "tags": ["つべ"],
+    "symbol": "📹"
   },
   {
     "name": "ホワイト",
@@ -32,8 +35,9 @@ const fallbackCharacters = [
     "birthday": "04-06",
     "firstPerson": "ワイ",
     "catchphrase": "？",
-    "species": "悪魔",
-    "tags": ["つべ"]
+    "species": "神",
+    "tags": ["つべ"],
+    "symbol": "👼"
   },
   {
     "name": "レオ博士",
@@ -41,8 +45,9 @@ const fallbackCharacters = [
     "birthday": "04-15",
     "firstPerson": "僕",
     "catchphrase": "？",
-    "species": "悪魔",
-    "tags": ["つべ"]
+    "species": "悪魔？",
+    "tags": ["つべ"],
+    "symbol": "🦁"
   },
   {
     "name": "タロー",
@@ -50,8 +55,9 @@ const fallbackCharacters = [
     "birthday": "03-06",
     "firstPerson": "俺",
     "catchphrase": "牙狼撲滅拳",
-    "species": "人間",
-    "tags": ["つべ"]
+    "species": "狼男？",
+    "tags": ["つべ"],
+    "symbol": "🐺"
   },
   {
     "name": "アカネ",
@@ -59,8 +65,9 @@ const fallbackCharacters = [
     "birthday": "02-03",
     "firstPerson": "アタシ",
     "catchphrase": "おりゃーっ！",
-    "species": "人間",
-    "tags": ["つべ"]
+    "species": "鬼",
+    "tags": ["つべ"],
+    "symbol": "👹"
   },
   {
     "name": "青オニちゃん",
@@ -68,8 +75,9 @@ const fallbackCharacters = [
     "birthday": "02-01",
     "firstPerson": "？",
     "catchphrase": "ニ～",
-    "species": "悪魔",
-    "tags": ["つべ"]
+    "species": "鬼",
+    "tags": ["つべ"],
+    "symbol": "💠"
   },
   {
     "name": "バニラ",
@@ -77,8 +85,9 @@ const fallbackCharacters = [
     "birthday": "08-02",
     "firstPerson": "バニラ",
     "catchphrase": "おなかすいたですぅ～",
-    "species": "悪魔",
-    "tags": ["つべ"]
+    "species": "天使",
+    "tags": ["つべ"],
+    "symbol": "🍦"
   },
   {
     "name": "肝田完璧超人（パーフェクトヒューマン）",
@@ -87,7 +96,8 @@ const fallbackCharacters = [
     "firstPerson": "僕",
     "catchphrase": "デュフフ",
     "species": "人間",
-    "tags": ["つべ"]
+    "tags": ["つべ"],
+    "symbol": "🤓"
   },
   {
     "name": "カーキ",
@@ -95,8 +105,9 @@ const fallbackCharacters = [
     "birthday": "06-10",
     "firstPerson": "僕",
     "catchphrase": "ポルターガイスト！",
-    "species": "宇宙人",
-    "tags": ["つべ"]
+    "species": "アンドロイド",
+    "tags": ["つべ"],
+    "symbol": "👽"
   },
   {
     "name": "アッシュ",
@@ -105,7 +116,8 @@ const fallbackCharacters = [
     "firstPerson": "オレ",
     "catchphrase": "コントロールモード！",
     "species": "宇宙人",
-    "tags": ["つべ"]
+    "tags": ["つべ"],
+    "symbol": "🌪️"
   },
   {
     "name": "ミズ",
@@ -113,8 +125,9 @@ const fallbackCharacters = [
     "birthday": "08-01",
     "firstPerson": "わたし",
     "catchphrase": "",
-    "species": "宇宙人",
-    "tags": ["コロ"]
+    "species": "人魚",
+    "tags": ["コロ"],
+    "symbol": "🧜‍♀️"
   }
 ];
 
@@ -405,7 +418,7 @@ function renderCalendar() {
         <div class="calendar-birthdays-container">
           ${birthdayPeople.map(p => `
             <div class="calendar-birthday-badge" title="${p.name}の誕生日！クリックで絞り込み" onclick="filterByCharacter('${p.name}')">
-              🎂<span class="badge-text"> ${p.name}</span>
+              <span class="badge-symbol">${p.symbol || '🎂'}</span><span class="badge-text"> ${p.name}</span>
             </div>
           `).join('')}
         </div>
