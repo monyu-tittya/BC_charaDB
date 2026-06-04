@@ -86,6 +86,7 @@ async function loadCharacters() {
 function initApp() {
   renderApp();
   renderCalendar();
+  renderCalendarSidebar();
   
   // Set up search event listener
   searchInput.addEventListener('input', () => {
@@ -317,6 +318,45 @@ function renderCalendar() {
     `;
     calendarGridDays.appendChild(dayCell);
   }
+}
+
+function renderCalendarSidebar() {
+  const allBirthdayList = document.getElementById('all-birthday-list');
+  allBirthdayList.innerHTML = '';
+  
+  // Sort characters by birthday month and day (excluding '?')
+  const validBirthdays = characters
+    .filter(char => char.birthday && char.birthday !== '?')
+    .sort((a, b) => a.birthday.localeCompare(b.birthday));
+    
+  validBirthdays.forEach(char => {
+    const li = document.createElement('li');
+    li.className = 'birthday-list-item';
+    
+    // Format birthday display
+    const parts = char.birthday.split('-');
+    let dateStr = char.birthday;
+    if (parts.length === 2) {
+      dateStr = `${parseInt(parts[0], 10)}月${parseInt(parts[1], 10)}日`;
+    }
+    
+    li.innerHTML = `
+      <span class="birthday-list-name">🎂 ${char.name}</span>
+      <span class="birthday-list-date">${dateStr}</span>
+    `;
+    
+    li.addEventListener('click', () => {
+      // Set calendar to this character's birthday month
+      const [m] = parts;
+      currentCalMonth = parseInt(m, 10);
+      renderCalendar();
+      
+      // Also apply filter
+      filterByCharacter(char.name);
+    });
+    
+    allBirthdayList.appendChild(li);
+  });
 }
 
 // Global filter helper so it can be called from onclick attribute
