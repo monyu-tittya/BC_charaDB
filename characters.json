@@ -4,7 +4,7 @@
     "height": 172,
     "birthday": "09-06",
     "firstPerson": "オレちゃん",
-    "catchphrase": "ディス イズ エンターテインメント、ディール、鬼ヤバ",
+    "catchphrase": "ディス イズ エンターテインメント、契約成立（ディール）、鬼ヤバです",
     "species": "悪魔",
     "tags": [
       "つべ"
@@ -16,19 +16,23 @@
     "height": 142,
     "birthday": "12-26",
     "firstPerson": "俺",
-    "catchphrase": "さとシーサー",
+    "catchphrase": "さとシ～サ～！、ぎょえぴ～！",
     "species": "人間",
     "tags": [
       "つべ"
     ],
+<<<<<<< HEAD
     "symbol": "🈂"
+=======
+    "symbol": "👦"
+>>>>>>> 6638efa4335baf220e72a4ec1d5cd0f9cb6a0701
   },
   {
     "name": "カメラちゃん",
     "height": "?",
     "birthday": "11-30",
     "firstPerson": "?",
-    "catchphrase": "じ〜",
+    "catchphrase": "じ〜！",
     "species": "小悪魔",
     "tags": [
       "つべ"
@@ -57,11 +61,15 @@
     "tags": [
       "つべ"
     ],
+<<<<<<< HEAD
     "symbol": "🔧"
+=======
+    "symbol": "🐲"
+>>>>>>> 6638efa4335baf220e72a4ec1d5cd0f9cb6a0701
   },
   {
     "name": "タロー",
-    "height": 180,
+    "height": 174,
     "birthday": "03-06",
     "firstPerson": "俺",
     "catchphrase": "牙狼撲滅拳",
@@ -73,7 +81,7 @@
   },
   {
     "name": "アカネ",
-    "height": 168,
+    "height": 165,
     "birthday": "02-03",
     "firstPerson": "アタシ",
     "catchphrase": "おりゃーっ！",
@@ -97,8 +105,8 @@
   },
   {
     "name": "バニラ",
-    "height": 102,
-    "birthday": "08-02",
+    "height": 104,
+    "birthday": "08-20",
     "firstPerson": "バニラ",
     "catchphrase": "おなかすいたですぅ～",
     "species": "天使",
@@ -108,7 +116,7 @@
     "symbol": "🍦"
   },
   {
-    "name": "肝田完璧超人（パーフェクトヒューマン）",
+    "name": "肝田",
     "height": "？",
     "birthday": "06-28",
     "firstPerson": "僕",
@@ -117,7 +125,11 @@
     "tags": [
       "つべ"
     ],
+<<<<<<< HEAD
     "symbol": "肝田"
+=======
+    "symbol": "肝"
+>>>>>>> 6638efa4335baf220e72a4ec1d5cd0f9cb6a0701
   },
   {
     "name": "カーキ",
@@ -133,7 +145,7 @@
   },
   {
     "name": "アッシュ",
-    "height": "？",
+    "height": 152,
     "birthday": "06-13",
     "firstPerson": "オレ",
     "catchphrase": "コントロールモード！",
@@ -154,5 +166,176 @@
       "コロ"
     ],
     "symbol": "💧"
+<<<<<<< HEAD
+=======
+  },
+  {
+    "name": "チャッキー",
+    "height": "？",
+    "birthday": "08-08",
+    "firstPerson": "ぼく",
+    "catchphrase": "",
+    "species": "ぬいぐるみ",
+    "tags": [
+      "コロ"
+    ],
+    "symbol": "🐻"
+  },
+  {
+    "name": "ベロベロ　ベージュ",
+    "height": "？",
+    "birthday": "08-18",
+    "firstPerson": "あたい",
+    "catchphrase": "",
+    "species": "幽霊",
+    "tags": [
+      "コロ"
+    ],
+    "symbol": "👅"
+  },
+  {
+    "name": "サプライおん",
+    "height": "？",
+    "birthday": "09-03",
+    "firstPerson": "ぼく",
+    "catchphrase": "",
+    "species": "？",
+    "tags": [
+      "コロ"
+    ],
+    "symbol": "🦁"
+  },
+  {
+    "name": "AIちゃん",
+    "height": "？",
+    "birthday": "09-04",
+    "firstPerson": "ぼく",
+    "catchphrase": "",
+    "species": "？",
+    "tags": [
+      "コロ"
+    ],
+    "symbol": "👁"
+  },
+  {
+    "name": "ドクター・イエロー",
+    "height": "？",
+    "birthday": "09-23",
+    "firstPerson": "オレ",
+    "catchphrase": "",
+    "species": "サイボーグ",
+    "tags": [
+      "つべ"
+    ],
+    "symbol": "💛"
+  },
+  {
+    "name": "モモ",
+    "height": 158,
+    "birthday": "10-05",
+    "firstPerson": "うち",
+    "catchphrase": "",
+    "species": "天使",
+    "tags": [
+      "つべ"
+    ],
+    "symbol": "🍑"
+  },
+  {
+    "name": "マゼンダ",
+    "height": 158,
+    "birthday": "10-05",
+    "firstPerson": "わし",
+    "catchphrase": "",
+    "species": "悪魔",
+    "tags": [
+      "つべ"
+    ],
+    "symbol": "🌀"
+  },
+  {
+    "name": "市井ひめ",
+    "height": "？",
+    "birthday": "11-02",
+    "firstPerson": "ひめ",
+    "catchphrase": "",
+    "species": "人間",
+    "tags": [
+      "つべ"
+    ],
+    "symbol": "🎀"
+  },
+  {
+    "name": "ダイチ",
+    "height": "？",
+    "birthday": "11-10",
+    "firstPerson": "おれ",
+    "catchphrase": "",
+    "species": "人間",
+    "tags": [
+      "つべ"
+    ],
+    "symbol": "ﾀﾞｲ"
+  },
+  {
+    "name": "イオタ",
+    "height": 187,
+    "birthday": "11-11",
+    "firstPerson": "私",
+    "catchphrase": "曲がっています！",
+    "species": "天使",
+    "tags": [
+      "つべ"
+    ],
+    "symbol": "💪"
+  },
+  {
+    "name": "ダイダイ",
+    "height": "？",
+    "birthday": "12-03",
+    "firstPerson": "オレ様",
+    "catchphrase": "",
+    "species": "死神",
+    "tags": [
+      "コロ"
+    ],
+    "symbol": "💀"
+  },
+  {
+    "name": "パープル",
+    "height": 200,
+    "birthday": "12-04",
+    "firstPerson": "オレ",
+    "catchphrase": "",
+    "species": "宇宙人",
+    "tags": [
+      "つべ"
+    ],
+    "symbol": "👾"
+  },
+  {
+    "name": "偽兄",
+    "height": "？",
+    "birthday": "02-23",
+    "firstPerson": "オレ様ちゃん",
+    "catchphrase": "",
+    "species": "ホムンクルス",
+    "tags": [
+      "つべ"
+    ],
+    "symbol": "偽"
+  },
+  {
+    "name": "アキラ",
+    "height": 164,
+    "birthday": "04-01",
+    "firstPerson": "ぼく",
+    "catchphrase": "",
+    "species": "悪魔",
+    "tags": [
+      "つべ"
+    ],
+    "symbol": "🔪"
+>>>>>>> 6638efa4335baf220e72a4ec1d5cd0f9cb6a0701
   }
 ]
