@@ -557,5 +557,42 @@ footer {
   font-weight: bold;
 }
 
+/* Card Tags */
+.card-tags {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  display: flex;
+  gap: 4px;
+  z-index: 10;
+}
+
+.tag-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+.tag-badge.tag-tsube {
+  background: rgba(255, 46, 91, 0.15);
+  border: 1px solid var(--accent-red);
+  color: var(--accent-red);
+  text-shadow: 0 0 5px rgba(255, 46, 91, 0.5);
+}
+
+.tag-badge.tag-koro {
+  background: rgba(6, 182, 212, 0.15);
+  border: 1px solid var(--accent-cyan);
+  color: var(--accent-cyan);
+  text-shadow: 0 0 5px rgba(6, 182, 212, 0.5);
+}
+
+.card-header {
+  padding-right: 4.5rem; /* Make room for absolute positioned tags */
+}
+
+
 
 

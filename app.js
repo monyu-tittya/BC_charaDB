@@ -5,35 +5,72 @@ const fallbackCharacters = [
     "height": 172,
     "birthday": "09-06",
     "firstPerson": "オレちゃん",
-    "catchphrase": "鬼ヤバ"
+    "catchphrase": "ディス イズ エンターテインメント、ディール、鬼ヤバ",
+    "tags": ["つべ", "コロ"]
   },
   {
     "name": "さとし",
     "height": 142,
     "birthday": "12-26",
     "firstPerson": "俺",
-    "catchphrase": "?"
+    "catchphrase": "さとシーサー",
+    "tags": ["つべ", "コロ"]
   },
   {
     "name": "カメラちゃん",
     "height": "?",
     "birthday": "11-30",
     "firstPerson": "?",
-    "catchphrase": "じ〜"
+    "catchphrase": "じ〜",
+    "tags": ["つべ", "コロ"]
   },
   {
     "name": "ホワイト",
     "height": 172,
     "birthday": "04-06",
     "firstPerson": "ワイ",
-    "catchphrase": "？"
+    "catchphrase": "？",
+    "tags": ["つべ", "コロ"]
   },
   {
     "name": "レオ博士",
     "height": 154,
     "birthday": "04-15",
     "firstPerson": "僕",
-    "catchphrase": "？"
+    "catchphrase": "？",
+    "tags": ["つべ", "コロ"]
+  },
+  {
+    "name": "タロー",
+    "height": 180,
+    "birthday": "03-06",
+    "firstPerson": "俺",
+    "catchphrase": "牙狼撲滅拳",
+    "tags": ["つべ", "コロ"]
+  },
+  {
+    "name": "アカネ",
+    "height": 168,
+    "birthday": "02-03",
+    "firstPerson": "アタシ",
+    "catchphrase": "おりゃーっ！",
+    "tags": ["つべ", "コロ"]
+  },
+  {
+    "name": "青オニちゃん",
+    "height": "？",
+    "birthday": "02-01",
+    "firstPerson": "？",
+    "catchphrase": "ニ～",
+    "tags": ["つべ"]
+  },
+  {
+    "name": "バニラ",
+    "height": 102,
+    "birthday": "02-01",
+    "firstPerson": "バニラ、わたし",
+    "catchphrase": "おなかすいたですぅ～",
+    "tags": ["つべ", "コロ"]
   }
 ];
 
@@ -155,7 +192,21 @@ function createCardHTML(char) {
     }
   }
   
+  // Generate tags HTML
+  let tagsHTML = '';
+  if (char.tags && Array.isArray(char.tags)) {
+    tagsHTML = `
+      <div class="card-tags">
+        ${char.tags.map(t => {
+          const className = t === 'つべ' ? 'tag-tsube' : (t === 'コロ' ? 'tag-koro' : '');
+          return `<span class="tag-badge ${className}">${t}</span>`;
+        }).join('')}
+      </div>
+    `;
+  }
+  
   return `
+    ${tagsHTML}
     <div class="card-header">
       <h3 class="card-title">${char.name}</h3>
       <span class="card-subtitle">Character Profile</span>
