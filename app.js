@@ -405,7 +405,7 @@ function renderCalendar() {
         <div class="calendar-birthdays-container">
           ${birthdayPeople.map(p => `
             <div class="calendar-birthday-badge" title="${p.name}の誕生日！クリックで絞り込み" onclick="filterByCharacter('${p.name}')">
-              🎂 ${p.name}
+              🎂<span class="badge-text"> ${p.name}</span>
             </div>
           `).join('')}
         </div>
