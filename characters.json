@@ -5,7 +5,9 @@
     "birthday": "09-06",
     "firstPerson": "オレちゃん",
     "catchphrase": "ディス イズ エンターテインメント、ディール、鬼ヤバ",
-    "tags": ["つべ", "コロ"]
+    "tags": [
+      "つべ"
+    ]
   },
   {
     "name": "さとし",
@@ -13,7 +15,9 @@
     "birthday": "12-26",
     "firstPerson": "俺",
     "catchphrase": "さとシーサー",
-    "tags": ["つべ", "コロ"]
+    "tags": [
+      "つべ"
+    ]
   },
   {
     "name": "カメラちゃん",
@@ -21,7 +25,9 @@
     "birthday": "11-30",
     "firstPerson": "?",
     "catchphrase": "じ〜",
-    "tags": ["つべ", "コロ"]
+    "tags": [
+      "つべ"
+    ]
   },
   {
     "name": "ホワイト",
@@ -29,7 +35,9 @@
     "birthday": "04-06",
     "firstPerson": "ワイ",
     "catchphrase": "？",
-    "tags": ["つべ", "コロ"]
+    "tags": [
+      "つべ"
+    ]
   },
   {
     "name": "レオ博士",
@@ -37,7 +45,9 @@
     "birthday": "04-15",
     "firstPerson": "僕",
     "catchphrase": "？",
-    "tags": ["つべ", "コロ"]
+    "tags": [
+      "つべ"
+    ]
   },
   {
     "name": "タロー",
@@ -45,7 +55,9 @@
     "birthday": "03-06",
     "firstPerson": "俺",
     "catchphrase": "牙狼撲滅拳",
-    "tags": ["つべ", "コロ"]
+    "tags": [
+      "つべ"
+    ]
   },
   {
     "name": "アカネ",
@@ -53,7 +65,9 @@
     "birthday": "02-03",
     "firstPerson": "アタシ",
     "catchphrase": "おりゃーっ！",
-    "tags": ["つべ", "コロ"]
+    "tags": [
+      "つべ"
+    ]
   },
   {
     "name": "青オニちゃん",
@@ -61,14 +75,28 @@
     "birthday": "02-01",
     "firstPerson": "？",
     "catchphrase": "ニ～",
-    "tags": ["つべ"]
+    "tags": [
+      "つべ"
+    ]
   },
   {
     "name": "バニラ",
     "height": 102,
-    "birthday": "02-01",
-    "firstPerson": "バニラ、わたし",
+    "birthday": "08-02",
+    "firstPerson": "バニラ",
     "catchphrase": "おなかすいたですぅ～",
-    "tags": ["つべ", "コロ"]
+    "tags": [
+      "つべ"
+    ]
+  },
+  {
+    "name": "肝田完璧超人（パーフェクトヒューマン）",
+    "height": "？",
+    "birthday": "06-28",
+    "firstPerson": "僕",
+    "catchphrase": "でゅふふ",
+    "tags": [
+      "つべ"
+    ]
   }
 ]
