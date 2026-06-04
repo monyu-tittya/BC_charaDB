@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ブラックチャンネルのキャラクター情報を素早く確認・検索できるファンDBサイト。">
+  <title>BC CHR DB</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1 id="main-title">BC CHR DB</h1>
+      <p>悪魔系YouTuber「ブラック」たちの情報を素早くチェック！</p>
+    </header>
+
+    <main>
+      <section class="controls" aria-label="検索と統計">
+        <div class="search-box">
+          <input type="text" id="search-input" placeholder="キャラ名、誕生日、一人称、口癖で検索..." aria-label="キャラクター検索">
+        </div>
+        <div class="stats-summary" id="stats-summary">
+          <span>登録キャラ数: <strong id="total-count">0</strong>人</span>
+          <span>身長判明: <strong id="known-height-count">0</strong>人</span>
+        </div>
+      </section>
+
+      <section class="birthday-section" id="birthday-section" style="display: none;">
+        <!-- 今月誕生日のキャラクターを表示 -->
+      </section>
+
+      <section class="grid" id="character-grid" aria-label="キャラクター一覧">
+        <!-- JSで動的に追加されます -->
+      </section>
+
+      <section class="height-section" id="height-section" aria-label="身長比較">
+        <h2>Height Comparison Chart (身長比較)</h2>
+        <div class="chart-container" id="chart-container">
+          <!-- JSで動的に追加されます -->
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>&copy; 2026 ブラックチャンネル キャラクターDB ファンサイト</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

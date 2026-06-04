@@ -1,0 +1,37 @@
+[
+  {
+    "name": "ブラック",
+    "height": 172,
+    "birthday": "09-06",
+    "firstPerson": "オレちゃん",
+    "catchphrase": "鬼ヤバ"
+  },
+  {
+    "name": "さとし",
+    "height": 142,
+    "birthday": "12-26",
+    "firstPerson": "俺",
+    "catchphrase": "?"
+  },
+  {
+    "name": "カメラちゃん",
+    "height": "?",
+    "birthday": "11-30",
+    "firstPerson": "?",
+    "catchphrase": "じ〜"
+  },
+  {
+    "name": "ホワイト",
+    "height": 172,
+    "birthday": "04-06",
+    "firstPerson": "ワイ",
+    "catchphrase": "？"
+  },
+  {
+    "name": "レオ博士",
+    "height": 154,
+    "birthday": "04-15",
+    "firstPerson": "僕",
+    "catchphrase": "？"
+  }
+]
