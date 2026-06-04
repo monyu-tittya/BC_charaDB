@@ -5,6 +5,7 @@
     "birthday": "09-06",
     "firstPerson": "オレちゃん",
     "catchphrase": "ディス イズ エンターテインメント、ディール、鬼ヤバ",
+    "species": "悪魔",
     "tags": [
       "つべ"
     ]
@@ -15,6 +16,7 @@
     "birthday": "12-26",
     "firstPerson": "俺",
     "catchphrase": "さとシーサー",
+    "species": "人間",
     "tags": [
       "つべ"
     ]
@@ -25,6 +27,7 @@
     "birthday": "11-30",
     "firstPerson": "?",
     "catchphrase": "じ〜",
+    "species": "悪魔",
     "tags": [
       "つべ"
     ]
@@ -35,6 +38,7 @@
     "birthday": "04-06",
     "firstPerson": "ワイ",
     "catchphrase": "？",
+    "species": "悪魔",
     "tags": [
       "つべ"
     ]
@@ -45,6 +49,7 @@
     "birthday": "04-15",
     "firstPerson": "僕",
     "catchphrase": "？",
+    "species": "悪魔",
     "tags": [
       "つべ"
     ]
@@ -55,6 +60,7 @@
     "birthday": "03-06",
     "firstPerson": "俺",
     "catchphrase": "牙狼撲滅拳",
+    "species": "人間",
     "tags": [
       "つべ"
     ]
@@ -65,6 +71,7 @@
     "birthday": "02-03",
     "firstPerson": "アタシ",
     "catchphrase": "おりゃーっ！",
+    "species": "人間",
     "tags": [
       "つべ"
     ]
@@ -75,6 +82,7 @@
     "birthday": "02-01",
     "firstPerson": "？",
     "catchphrase": "ニ～",
+    "species": "悪魔",
     "tags": [
       "つべ"
     ]
@@ -85,6 +93,7 @@
     "birthday": "08-02",
     "firstPerson": "バニラ",
     "catchphrase": "おなかすいたですぅ～",
+    "species": "悪魔",
     "tags": [
       "つべ"
     ]
@@ -94,9 +103,43 @@
     "height": "？",
     "birthday": "06-28",
     "firstPerson": "僕",
-    "catchphrase": "でゅふふ",
+    "catchphrase": "デュフフ",
+    "species": "人間",
     "tags": [
       "つべ"
+    ]
+  },
+  {
+    "name": "カーキ",
+    "height": "？",
+    "birthday": "06-10",
+    "firstPerson": "僕",
+    "catchphrase": "ポルターガイスト！",
+    "species": "宇宙人",
+    "tags": [
+      "つべ"
+    ]
+  },
+  {
+    "name": "アッシュ",
+    "height": "？",
+    "birthday": "06-13",
+    "firstPerson": "オレ",
+    "catchphrase": "コントロールモード！",
+    "species": "宇宙人",
+    "tags": [
+      "つべ"
+    ]
+  },
+  {
+    "name": "ミズ",
+    "height": "？",
+    "birthday": "08-01",
+    "firstPerson": "わたし",
+    "catchphrase": "",
+    "species": "宇宙人",
+    "tags": [
+      "コロ"
     ]
   }
 ]

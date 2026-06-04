@@ -1,4 +1,3 @@
-// Fallback static data in case of CORS / fetch issues
 const fallbackCharacters = [
   {
     "name": "ブラック",
@@ -6,7 +5,8 @@ const fallbackCharacters = [
     "birthday": "09-06",
     "firstPerson": "オレちゃん",
     "catchphrase": "ディス イズ エンターテインメント、ディール、鬼ヤバ",
-    "tags": ["つべ", "コロ"]
+    "species": "悪魔",
+    "tags": ["つべ"]
   },
   {
     "name": "さとし",
@@ -14,7 +14,8 @@ const fallbackCharacters = [
     "birthday": "12-26",
     "firstPerson": "俺",
     "catchphrase": "さとシーサー",
-    "tags": ["つべ", "コロ"]
+    "species": "人間",
+    "tags": ["つべ"]
   },
   {
     "name": "カメラちゃん",
@@ -22,7 +23,8 @@ const fallbackCharacters = [
     "birthday": "11-30",
     "firstPerson": "?",
     "catchphrase": "じ〜",
-    "tags": ["つべ", "コロ"]
+    "species": "悪魔",
+    "tags": ["つべ"]
   },
   {
     "name": "ホワイト",
@@ -30,7 +32,8 @@ const fallbackCharacters = [
     "birthday": "04-06",
     "firstPerson": "ワイ",
     "catchphrase": "？",
-    "tags": ["つべ", "コロ"]
+    "species": "悪魔",
+    "tags": ["つべ"]
   },
   {
     "name": "レオ博士",
@@ -38,7 +41,8 @@ const fallbackCharacters = [
     "birthday": "04-15",
     "firstPerson": "僕",
     "catchphrase": "？",
-    "tags": ["つべ", "コロ"]
+    "species": "悪魔",
+    "tags": ["つべ"]
   },
   {
     "name": "タロー",
@@ -46,7 +50,8 @@ const fallbackCharacters = [
     "birthday": "03-06",
     "firstPerson": "俺",
     "catchphrase": "牙狼撲滅拳",
-    "tags": ["つべ", "コロ"]
+    "species": "人間",
+    "tags": ["つべ"]
   },
   {
     "name": "アカネ",
@@ -54,7 +59,8 @@ const fallbackCharacters = [
     "birthday": "02-03",
     "firstPerson": "アタシ",
     "catchphrase": "おりゃーっ！",
-    "tags": ["つべ", "コロ"]
+    "species": "人間",
+    "tags": ["つべ"]
   },
   {
     "name": "青オニちゃん",
@@ -62,15 +68,53 @@ const fallbackCharacters = [
     "birthday": "02-01",
     "firstPerson": "？",
     "catchphrase": "ニ～",
+    "species": "悪魔",
     "tags": ["つべ"]
   },
   {
     "name": "バニラ",
     "height": 102,
-    "birthday": "02-01",
-    "firstPerson": "バニラ、わたし",
+    "birthday": "08-02",
+    "firstPerson": "バニラ",
     "catchphrase": "おなかすいたですぅ～",
-    "tags": ["つべ", "コロ"]
+    "species": "悪魔",
+    "tags": ["つべ"]
+  },
+  {
+    "name": "肝田完璧超人（パーフェクトヒューマン）",
+    "height": "？",
+    "birthday": "06-28",
+    "firstPerson": "僕",
+    "catchphrase": "デュフフ",
+    "species": "人間",
+    "tags": ["つべ"]
+  },
+  {
+    "name": "カーキ",
+    "height": "？",
+    "birthday": "06-10",
+    "firstPerson": "僕",
+    "catchphrase": "ポルターガイスト！",
+    "species": "宇宙人",
+    "tags": ["つべ"]
+  },
+  {
+    "name": "アッシュ",
+    "height": "？",
+    "birthday": "06-13",
+    "firstPerson": "オレ",
+    "catchphrase": "コントロールモード！",
+    "species": "宇宙人",
+    "tags": ["つべ"]
+  },
+  {
+    "name": "ミズ",
+    "height": "？",
+    "birthday": "08-01",
+    "firstPerson": "わたし",
+    "catchphrase": "",
+    "species": "宇宙人",
+    "tags": ["コロ"]
   }
 ];
 
@@ -159,7 +203,8 @@ function renderApp() {
     const birthdayMatch = String(char.birthday).toLowerCase().includes(query);
     const firstPersonMatch = String(char.firstPerson).toLowerCase().includes(query);
     const catchphraseMatch = String(char.catchphrase).toLowerCase().includes(query);
-    return nameMatch || birthdayMatch || firstPersonMatch || catchphraseMatch;
+    const speciesMatch = String(char.species || '').toLowerCase().includes(query);
+    return nameMatch || birthdayMatch || firstPersonMatch || catchphraseMatch || speciesMatch;
   });
   
   // Render birthday section (at the top)
@@ -213,8 +258,12 @@ function createCardHTML(char) {
     </div>
     <ul class="info-list">
       <li class="info-item">
+        <span class="info-label">種族</span>
+        <span class="info-val ${!char.species || char.species === '？' || char.species === '?' ? 'unknown' : ''}">${char.species || '?'}</span>
+      </li>
+      <li class="info-item">
         <span class="info-label">身長</span>
-        <span class="info-val ${char.height === '?' ? 'unknown' : ''}">${char.height === '?' ? '?' : char.height + ' cm'}</span>
+        <span class="info-val ${char.height === '？' || char.height === '?' ? 'unknown' : ''}">${char.height === '？' || char.height === '?' ? '?' : char.height + ' cm'}</span>
       </li>
       <li class="info-item">
         <span class="info-label">誕生日</span>
@@ -222,11 +271,11 @@ function createCardHTML(char) {
       </li>
       <li class="info-item">
         <span class="info-label">一人称</span>
-        <span class="info-val ${char.firstPerson === '?' ? 'unknown' : ''}">${char.firstPerson}</span>
+        <span class="info-val ${char.firstPerson === '？' || char.firstPerson === '?' ? 'unknown' : ''}">${char.firstPerson}</span>
       </li>
       <li class="info-item">
         <span class="info-label">口癖 / 決め台詞</span>
-        <span class="info-val ${char.catchphrase === '?' ? 'unknown' : ''}">${char.catchphrase}</span>
+        <span class="info-val ${char.catchphrase === '？' || char.catchphrase === '?' || !char.catchphrase ? 'unknown' : ''}">${char.catchphrase || '?'}</span>
       </li>
     </ul>
   `;
