@@ -86,6 +86,20 @@
     </footer>
   </div>
 
+  <!-- イベント詳細モーダル -->
+  <div id="event-detail-modal" class="event-modal" aria-hidden="true" role="dialog" aria-labelledby="modal-date-title">
+    <div id="event-modal-overlay" class="event-modal-overlay"></div>
+    <div class="event-modal-content">
+      <button id="close-modal-btn" class="close-modal-btn" aria-label="閉じる">&times;</button>
+      <div class="modal-header">
+        <h3 id="modal-date-title">イベント詳細</h3>
+      </div>
+      <div id="modal-body-content" class="modal-body">
+        <!-- JSで詳細が動的に挿入されます -->
+      </div>
+    </div>
+  </div>
+
   <script src="app.js"></script>
 </body>
 

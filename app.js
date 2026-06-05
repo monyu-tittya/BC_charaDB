@@ -236,6 +236,23 @@ function initApp() {
     }
     renderCalendar();
   });
+
+  // Modal event listeners
+  const closeModalBtn = document.getElementById('close-modal-btn');
+  const modalOverlay = document.getElementById('event-modal-overlay');
+
+  if (closeModalBtn) {
+    closeModalBtn.addEventListener('click', closeEventModal);
+  }
+  if (modalOverlay) {
+    modalOverlay.addEventListener('click', closeEventModal);
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeEventModal();
+    }
+  });
 }
 
 function renderApp() {
@@ -450,7 +467,7 @@ function renderCalendar() {
 
     birthdayPeople.forEach(p => {
       badgeItems.push(`
-        <div class="calendar-birthday-badge" title="${p.name}の誕生日！クリックで絞り込み" onclick="filterByCharacter('${p.name}')">
+        <div class="calendar-birthday-badge" title="${p.name}の誕生日！クリックで詳細表示">
           <span class="badge-symbol">${p.symbol || '🎂'}</span><span class="badge-text"> ${p.name}</span>
         </div>
       `);
@@ -476,6 +493,16 @@ function renderCalendar() {
       <span class="day-number">${day}</span>
       ${badgesHTML}
     `;
+
+    // Click handler for days with events
+    if (birthdayPeople.length > 0 || dayEvents.length > 0) {
+      dayCell.classList.add('has-events');
+      dayCell.style.cursor = 'pointer';
+      dayCell.addEventListener('click', () => {
+        showDayDetails(currentCalMonth, day, birthdayPeople, dayEvents);
+      });
+    }
+
     calendarGridDays.appendChild(dayCell);
   }
 }
@@ -566,6 +593,79 @@ window.filterByCharacter = function (name) {
         card.style.boxShadow = '';
       }, 2000);
     }
+  }
+};
+
+// Modal helpers
+window.showDayDetails = function (month, day, birthdayPeople, dayEvents) {
+  const modal = document.getElementById('event-detail-modal');
+  const modalTitle = document.getElementById('modal-date-title');
+  const modalBody = document.getElementById('modal-body-content');
+
+  modalTitle.textContent = `${month}月${day}日の予定`;
+  modalBody.innerHTML = '';
+
+  if (birthdayPeople && birthdayPeople.length > 0) {
+    const section = document.createElement('div');
+    section.innerHTML = `<div class="modal-item-title birthday">🎂 誕生日のキャラクター</div>`;
+    birthdayPeople.forEach(p => {
+      const heightStr = p.height === '？' || p.height === '?' ? '?' : `${p.height} cm`;
+
+      const card = document.createElement('div');
+      card.className = 'modal-char-preview';
+      card.innerHTML = `
+        <div class="modal-char-row">
+          <span class="modal-char-label">名前</span>
+          <span class="modal-char-val">${p.symbol || '🎂'} ${p.name}</span>
+        </div>
+        <div class="modal-char-row">
+          <span class="modal-char-label">種族</span>
+          <span class="modal-char-val">${p.species || '?'}</span>
+        </div>
+        <div class="modal-char-row">
+          <span class="modal-char-label">身長</span>
+          <span class="modal-char-val">${heightStr}</span>
+        </div>
+        <div class="modal-char-row">
+          <span class="modal-char-label">一人称</span>
+          <span class="modal-char-val">${p.firstPerson || '?'}</span>
+        </div>
+        <button class="modal-action-btn" onclick="closeEventModal(); filterByCharacter('${p.name}');">
+          🔍 プロフィールを見る
+        </button>
+      `;
+      section.appendChild(card);
+    });
+    modalBody.appendChild(section);
+  }
+
+  if (dayEvents && dayEvents.length > 0) {
+    const section = document.createElement('div');
+    section.innerHTML = `<div class="modal-item-title event">📅 その他・公式イベント</div>`;
+    dayEvents.forEach(ev => {
+      const card = document.createElement('div');
+      card.className = 'modal-event-preview';
+      card.innerHTML = `
+        <div class="modal-char-row">
+          <span class="modal-char-label">イベント名</span>
+          <span class="modal-char-val">${ev.symbol || '📅'} ${ev.name}</span>
+        </div>
+        <div class="modal-event-desc">${ev.description || ''}</div>
+      `;
+      section.appendChild(card);
+    });
+    modalBody.appendChild(section);
+  }
+
+  modal.classList.add('active');
+  modal.setAttribute('aria-hidden', 'false');
+};
+
+window.closeEventModal = function () {
+  const modal = document.getElementById('event-detail-modal');
+  if (modal) {
+    modal.classList.remove('active');
+    modal.setAttribute('aria-hidden', 'true');
   }
 };
 
