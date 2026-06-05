@@ -133,6 +133,10 @@ const fallbackCharacters = [
 
 let characters = [];
 
+const otherEvents = [
+  { date: "08-31", name: "Ch.開設日", symbol: "📺", description: "YouTubeチャンネル開設記念日 (2020年)" }
+];
+
 // DOM Elements
 const searchInput = document.getElementById('search-input');
 const clearSearchBtn = document.getElementById('clear-search-btn');
@@ -166,7 +170,7 @@ async function loadCharacters() {
   } catch (error) {
     console.warn('Could not load characters.json (likely due to CORS or direct file access). Using fallback data.', error);
     characters = fallbackCharacters;
-    
+
     // Show local server recommendation tip in header if we are on file:// protocol
     if (window.location.protocol === 'file:') {
       const header = document.querySelector('header');
@@ -176,7 +180,7 @@ async function loadCharacters() {
       header.appendChild(tip);
     }
   }
-  
+
   initApp();
 }
 
@@ -191,7 +195,7 @@ function initApp() {
   renderCalendar();
   renderCalendarSidebar();
   updateClearButtonVisibility();
-  
+
   // Set up search event listener
   searchInput.addEventListener('input', () => {
     updateClearButtonVisibility();
@@ -223,7 +227,7 @@ function initApp() {
     }
     renderCalendar();
   });
-  
+
   nextMonthBtn.addEventListener('click', () => {
     currentCalMonth++;
     if (currentCalMonth > 12) {
@@ -236,7 +240,7 @@ function initApp() {
 
 function renderApp() {
   const query = searchInput.value.toLowerCase().trim();
-  
+
   // Filter characters
   const filtered = characters.filter(char => {
     const nameMatch = char.name.toLowerCase().includes(query);
@@ -246,16 +250,16 @@ function renderApp() {
     const speciesMatch = String(char.species || '').toLowerCase().includes(query);
     return nameMatch || birthdayMatch || firstPersonMatch || catchphraseMatch || speciesMatch;
   });
-  
+
   // Render birthday section (at the top)
   renderBirthdayHighlight();
-  
+
   // Render cards
   renderCards(filtered);
-  
+
   // Render height chart
   renderHeightChart(filtered);
-  
+
   // Update stats
   updateStats(filtered);
 }
@@ -276,20 +280,20 @@ function createCardHTML(char) {
       bdayDisplay = `${parseInt(parts[0], 10)}月${parseInt(parts[1], 10)}日`;
     }
   }
-  
+
   // Generate tags HTML
   let tagsHTML = '';
   if (char.tags && Array.isArray(char.tags)) {
     tagsHTML = `
       <div class="card-tags">
         ${char.tags.map(t => {
-          const className = t === 'つべ' ? 'tag-tsube' : (t === 'コロ' ? 'tag-koro' : '');
-          return `<span class="tag-badge ${className}">${t}</span>`;
-        }).join('')}
+      const className = t === 'つべ' ? 'tag-tsube' : (t === 'コロ' ? 'tag-koro' : '');
+      return `<span class="tag-badge ${className}">${t}</span>`;
+    }).join('')}
       </div>
     `;
   }
-  
+
   return `
     ${tagsHTML}
     <div class="card-header">
@@ -324,24 +328,24 @@ function createCardHTML(char) {
 function renderBirthdayHighlight() {
   const currentMonth = new Date().getMonth() + 1; // 1-12
   const monthStr = String(currentMonth).padStart(2, '0');
-  
+
   // Find characters whose birthday is this month
   const birthdayPeople = characters.filter(char => {
     return char.birthday && char.birthday.startsWith(monthStr);
   });
-  
+
   if (birthdayPeople.length === 0) {
     birthdaySection.style.display = 'none';
     birthdaySection.innerHTML = '';
     return;
   }
-  
+
   birthdaySection.style.display = 'block';
   birthdaySection.innerHTML = `
     <div class="birthday-title">🎉 今月 (${currentMonth}月) 誕生日のキャラクター 🎉</div>
     <div class="birthday-grid" id="birthday-grid"></div>
   `;
-  
+
   const bGrid = document.getElementById('birthday-grid');
   birthdayPeople.forEach(char => {
     const card = document.createElement('article');
@@ -354,7 +358,7 @@ function renderBirthdayHighlight() {
 
 function renderCards(dataList) {
   characterGrid.innerHTML = '';
-  
+
   if (dataList.length === 0) {
     characterGrid.innerHTML = `
       <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--text-secondary);">
@@ -363,7 +367,7 @@ function renderCards(dataList) {
     `;
     return;
   }
-  
+
   dataList.forEach(char => {
     const card = document.createElement('article');
     card.className = 'card';
@@ -375,12 +379,12 @@ function renderCards(dataList) {
 
 function renderHeightChart(dataList) {
   chartContainer.innerHTML = '';
-  
+
   // Filter for valid heights
   const heightData = dataList
     .filter(char => typeof char.height === 'number' && !isNaN(char.height))
     .sort((a, b) => b.height - a.height);
-    
+
   if (heightData.length === 0) {
     chartContainer.innerHTML = `
       <div style="text-align: center; width: 100%; color: var(--text-secondary); line-height: 250px;">
@@ -389,17 +393,17 @@ function renderHeightChart(dataList) {
     `;
     return;
   }
-  
+
   // Find max height for scaling
   const maxHeight = Math.max(...heightData.map(c => c.height));
-  
+
   heightData.forEach(char => {
     const barWrapper = document.createElement('div');
     barWrapper.className = 'chart-bar-wrapper';
-    
+
     // Scale height (max height will be 85% of chart container to leave room for label)
     const percentageHeight = (char.height / maxHeight) * 85;
-    
+
     barWrapper.innerHTML = `
       <div class="chart-bar" style="height: ${percentageHeight}%;" data-height-text="${char.height}cm"></div>
       <div class="chart-label" title="${char.name}">${char.name}</div>
@@ -411,47 +415,63 @@ function renderHeightChart(dataList) {
 function renderCalendar() {
   calendarMonthYear.textContent = `${currentCalYear}年 ${currentCalMonth}月`;
   calendarGridDays.innerHTML = '';
-  
+
   const firstDayIndex = new Date(currentCalYear, currentCalMonth - 1, 1).getDay();
   const lastDay = new Date(currentCalYear, currentCalMonth, 0).getDate();
-  
+
   // Previous month's padding
   for (let i = 0; i < firstDayIndex; i++) {
     const emptyCell = document.createElement('div');
     emptyCell.className = 'calendar-day empty';
     calendarGridDays.appendChild(emptyCell);
   }
-  
+
   // Current month's days
   const monthStr = String(currentCalMonth).padStart(2, '0');
-  
+
   for (let day = 1; day <= lastDay; day++) {
     const dayStr = String(day).padStart(2, '0');
     const bdayKey = `${monthStr}-${dayStr}`;
-    
+
     // Find characters born on this day
     const birthdayPeople = characters.filter(char => char.birthday === bdayKey);
-    
+    // Find other events on this day
+    const dayEvents = otherEvents.filter(ev => ev.date === bdayKey);
+
     const dayCell = document.createElement('div');
     const dayOfWeek = (firstDayIndex + day - 1) % 7;
     let dayClass = 'calendar-day';
     if (dayOfWeek === 0) dayClass += ' sunday';
     if (dayOfWeek === 6) dayClass += ' saturday';
     dayCell.className = dayClass;
-    
+
     let badgesHTML = '';
-    if (birthdayPeople.length > 0) {
+    const badgeItems = [];
+
+    birthdayPeople.forEach(p => {
+      badgeItems.push(`
+        <div class="calendar-birthday-badge" title="${p.name}の誕生日！クリックで絞り込み" onclick="filterByCharacter('${p.name}')">
+          <span class="badge-symbol">${p.symbol || '🎂'}</span><span class="badge-text"> ${p.name}</span>
+        </div>
+      `);
+    });
+
+    dayEvents.forEach(ev => {
+      badgeItems.push(`
+        <div class="calendar-event-badge" title="${ev.description || ev.name}">
+          <span class="badge-symbol">${ev.symbol || '📅'}</span><span class="badge-text"> ${ev.name}</span>
+        </div>
+      `);
+    });
+
+    if (badgeItems.length > 0) {
       badgesHTML = `
         <div class="calendar-birthdays-container">
-          ${birthdayPeople.map(p => `
-            <div class="calendar-birthday-badge" title="${p.name}の誕生日！クリックで絞り込み" onclick="filterByCharacter('${p.name}')">
-              <span class="badge-symbol">${p.symbol || '🎂'}</span><span class="badge-text"> ${p.name}</span>
-            </div>
-          `).join('')}
+          ${badgeItems.join('')}
         </div>
       `;
     }
-    
+
     dayCell.innerHTML = `
       <span class="day-number">${day}</span>
       ${badgesHTML}
@@ -463,11 +483,11 @@ function renderCalendar() {
 function renderCalendarSidebar() {
   const allBirthdayList = document.getElementById('all-birthday-list');
   allBirthdayList.innerHTML = '';
-  
+
   // Sort characters by upcoming birthday starting from today
   const now = new Date();
   const todayVal = (now.getMonth() + 1) * 100 + now.getDate();
-  
+
   const getBdayScore = (bdayStr) => {
     const parts = bdayStr.split('-');
     if (parts.length !== 2) return 9999;
@@ -483,33 +503,33 @@ function renderCalendarSidebar() {
 
   // Determine slice based on expanded state
   const displayedBirthdays = isBdayExpanded ? validBirthdays : validBirthdays.slice(0, 3);
-  
+
   displayedBirthdays.forEach(char => {
     const li = document.createElement('li');
     li.className = 'birthday-list-item';
-    
+
     // Format birthday display
     const parts = char.birthday.split('-');
     let dateStr = char.birthday;
     if (parts.length === 2) {
       dateStr = `${parseInt(parts[0], 10)}月${parseInt(parts[1], 10)}日`;
     }
-    
+
     li.innerHTML = `
       <span class="birthday-list-name">🎂 ${char.name}</span>
       <span class="birthday-list-date">${dateStr}</span>
     `;
-    
+
     li.addEventListener('click', () => {
       // Set calendar to this character's birthday month
       const [m] = parts;
       currentCalMonth = parseInt(m, 10);
       renderCalendar();
-      
+
       // Also apply filter
       filterByCharacter(char.name);
     });
-    
+
     allBirthdayList.appendChild(li);
   });
 
@@ -525,7 +545,7 @@ function renderCalendarSidebar() {
 }
 
 // Global filter helper so it can be called from onclick attribute
-window.filterByCharacter = function(name) {
+window.filterByCharacter = function (name) {
   if (searchInput.value === name) {
     searchInput.value = '';
   } else {
@@ -533,7 +553,7 @@ window.filterByCharacter = function(name) {
   }
   updateClearButtonVisibility();
   renderApp();
-  
+
   // Scroll to character grid or card only if the filter was applied
   if (searchInput.value === name) {
     const card = document.getElementById(`char-card-${name}`);
