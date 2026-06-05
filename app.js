@@ -135,6 +135,7 @@ let characters = [];
 
 // DOM Elements
 const searchInput = document.getElementById('search-input');
+const clearSearchBtn = document.getElementById('clear-search-btn');
 const characterGrid = document.getElementById('character-grid');
 const birthdaySection = document.getElementById('birthday-section');
 const chartContainer = document.getElementById('chart-container');
@@ -177,15 +178,32 @@ async function loadCharacters() {
   initApp();
 }
 
+function updateClearButtonVisibility() {
+  if (clearSearchBtn) {
+    clearSearchBtn.style.display = searchInput.value ? 'flex' : 'none';
+  }
+}
+
 function initApp() {
   renderApp();
   renderCalendar();
   renderCalendarSidebar();
+  updateClearButtonVisibility();
   
   // Set up search event listener
   searchInput.addEventListener('input', () => {
+    updateClearButtonVisibility();
     renderApp();
   });
+
+  if (clearSearchBtn) {
+    clearSearchBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      updateClearButtonVisibility();
+      renderApp();
+      searchInput.focus();
+    });
+  }
 
   // Calendar Controls
   prevMonthBtn.addEventListener('click', () => {
@@ -474,18 +492,26 @@ function renderCalendarSidebar() {
 
 // Global filter helper so it can be called from onclick attribute
 window.filterByCharacter = function(name) {
-  searchInput.value = name;
+  if (searchInput.value === name) {
+    searchInput.value = '';
+  } else {
+    searchInput.value = name;
+  }
+  updateClearButtonVisibility();
   renderApp();
-  // Scroll to character grid or card
-  const card = document.getElementById(`char-card-${name}`);
-  if (card) {
-    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    card.style.borderColor = 'var(--accent-red)';
-    card.style.boxShadow = 'var(--shadow-neon-red)';
-    setTimeout(() => {
-      card.style.borderColor = '';
-      card.style.boxShadow = '';
-    }, 2000);
+  
+  // Scroll to character grid or card only if the filter was applied
+  if (searchInput.value === name) {
+    const card = document.getElementById(`char-card-${name}`);
+    if (card) {
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      card.style.borderColor = 'var(--accent-red)';
+      card.style.boxShadow = 'var(--shadow-neon-red)';
+      setTimeout(() => {
+        card.style.borderColor = '';
+        card.style.boxShadow = '';
+      }, 2000);
+    }
   }
 };
 

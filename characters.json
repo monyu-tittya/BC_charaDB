@@ -4,7 +4,7 @@
     "height": 172,
     "birthday": "09-06",
     "firstPerson": "オレちゃん",
-    "catchphrase": "ディス イズ エンターテインメント、契約成立（ディール）、鬼ヤバです",
+    "catchphrase": "ディス イズ 炎ターテインメント、契約成立（ディール）、鬼ヤバです",
     "species": "悪魔",
     "tags": [
       "つべ"
@@ -64,7 +64,7 @@
     "height": 174,
     "birthday": "03-06",
     "firstPerson": "俺",
-    "catchphrase": "牙狼撲滅拳",
+    "catchphrase": "必殺！餓狼撲滅拳",
     "species": "狼男？",
     "tags": [
       "つべ"
@@ -89,7 +89,7 @@
     "birthday": "02-01",
     "firstPerson": "？",
     "catchphrase": "ニ～",
-    "species": "鬼",
+    "species": "小鬼？",
     "tags": [
       "つべ"
     ],
@@ -99,7 +99,7 @@
     "name": "バニラ",
     "height": 104,
     "birthday": "08-20",
-    "firstPerson": "バニラ",
+    "firstPerson": "私、バニラ",
     "catchphrase": "おなかすいたですぅ～",
     "species": "天使",
     "tags": [
@@ -207,8 +207,8 @@
     "name": "ドクター・イエロー",
     "height": "？",
     "birthday": "09-23",
-    "firstPerson": "オレ",
-    "catchphrase": "",
+    "firstPerson": "オレ様",
+    "catchphrase": "キーッキッキッキ",
     "species": "サイボーグ",
     "tags": [
       "つべ"
@@ -240,10 +240,10 @@
     "symbol": "🌀"
   },
   {
-    "name": "市井ひめ",
+    "name": "ひめ",
     "height": "？",
     "birthday": "11-02",
-    "firstPerson": "ひめ",
+    "firstPerson": "私、ひめ",
     "catchphrase": "",
     "species": "人間",
     "tags": [
@@ -252,7 +252,7 @@
     "symbol": "🎀"
   },
   {
-    "name": "ダイチ",
+    "name": "だいち",
     "height": "？",
     "birthday": "11-10",
     "firstPerson": "おれ",
@@ -300,7 +300,7 @@
     "symbol": "👾"
   },
   {
-    "name": "偽兄",
+    "name": "ニセ兄",
     "height": "？",
     "birthday": "02-23",
     "firstPerson": "オレ様ちゃん",
@@ -315,7 +315,7 @@
     "name": "アキラ",
     "height": 164,
     "birthday": "04-01",
-    "firstPerson": "ぼく",
+    "firstPerson": "僕",
     "catchphrase": "",
     "species": "悪魔",
     "tags": [

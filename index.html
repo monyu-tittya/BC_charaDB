@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
   <title>BC CHR DB</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <div class="container">
     <header>
@@ -26,7 +28,13 @@
               <button id="next-month-btn" aria-label="次月">&gt;</button>
             </div>
             <div class="calendar-grid-header">
-              <div>日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div>土</div>
+              <div>日</div>
+              <div>月</div>
+              <div>火</div>
+              <div>水</div>
+              <div>木</div>
+              <div>金</div>
+              <div>土</div>
             </div>
             <div class="calendar-grid" id="calendar-grid-days">
               <!-- JSで動的に描画されます -->
@@ -55,6 +63,7 @@
       <section class="controls" aria-label="検索と統計">
         <div class="search-box">
           <input type="text" id="search-input" placeholder="キャラ名、誕生日、一人称、口癖で検索..." aria-label="キャラクター検索">
+          <button id="clear-search-btn" class="clear-search-btn" aria-label="検索をクリア" style="display: none;">×</button>
         </div>
         <div class="stats-summary" id="stats-summary">
           <span>登録キャラ数: <strong id="total-count">0</strong>人</span>
@@ -72,10 +81,11 @@
     </main>
 
     <footer>
-      <p>&copy; 2026 ブラックチャンネル キャラクターDB ファンサイト</p>
+      <p>2026 ブラックチャンネル キャラクター情報 ファンサイト</p>
     </footer>
   </div>
 
   <script src="app.js"></script>
 </body>
+
 </html>
