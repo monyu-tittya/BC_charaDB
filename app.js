@@ -253,6 +253,12 @@ function initApp() {
       closeEventModal();
     }
   });
+
+  // Download iCal listener
+  const downloadIcalBtn = document.getElementById('download-ical-btn');
+  if (downloadIcalBtn) {
+    downloadIcalBtn.addEventListener('click', downloadCalendarICS);
+  }
 }
 
 function renderApp() {
@@ -666,6 +672,98 @@ window.closeEventModal = function () {
   if (modal) {
     modal.classList.remove('active');
     modal.setAttribute('aria-hidden', 'true');
+  }
+};
+
+window.downloadCalendarICS = function () {
+  const icsLines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//BC CharaDB//NONSGML Calendar//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH'
+  ];
+
+  const currentYear = new Date().getFullYear();
+
+  const escapeText = (str) => {
+    return str.replace(/\\/g, '\\\\').replace(/,/g, '\\,').replace(/;/g, '\\;').replace(/\n/g, '\\n');
+  };
+
+  // Add birthdays
+  characters.forEach(p => {
+    if (!p.birthday || p.birthday === '?') return;
+    const parts = p.birthday.split('-');
+    if (parts.length !== 2) return;
+    const [month, day] = parts;
+
+    // Use current year as start date
+    const dateStr = `${currentYear}${month.padStart(2, '0')}${day.padStart(2, '0')}`;
+    
+    // Calculate the day after for the end date (all-day event rule)
+    const eventDate = new Date(currentYear, parseInt(month) - 1, parseInt(day));
+    const nextDate = new Date(eventDate);
+    nextDate.setDate(eventDate.getDate() + 1);
+    const nextYearStr = nextDate.getFullYear();
+    const nextMonthStr = String(nextDate.getMonth() + 1).padStart(2, '0');
+    const nextDayStr = String(nextDate.getDate()).padStart(2, '0');
+    const nextDateStr = `${nextYearStr}${nextMonthStr}${nextDayStr}`;
+
+    const uidName = encodeURIComponent(p.name).replace(/%/g, '');
+
+    icsLines.push('BEGIN:VEVENT');
+    icsLines.push(`UID:bday-${uidName}-${month}-${day}@bc-charadb.com`);
+    icsLines.push(`DTSTART;VALUE=DATE:${dateStr}`);
+    icsLines.push(`DTEND;VALUE=DATE:${nextDateStr}`);
+    icsLines.push('RRULE:FREQ=YEARLY');
+    icsLines.push(`SUMMARY:🎂 ${escapeText(p.name)}の誕生日`);
+    icsLines.push('END:VEVENT');
+  });
+
+  // Add other events
+  otherEvents.forEach(ev => {
+    if (!ev.date) return;
+    const parts = ev.date.split('-');
+    if (parts.length !== 2) return;
+    const [month, day] = parts;
+
+    const dateStr = `${currentYear}${month.padStart(2, '0')}${day.padStart(2, '0')}`;
+    
+    // Calculate the day after for the end date
+    const eventDate = new Date(currentYear, parseInt(month) - 1, parseInt(day));
+    const nextDate = new Date(eventDate);
+    nextDate.setDate(eventDate.getDate() + 1);
+    const nextYearStr = nextDate.getFullYear();
+    const nextMonthStr = String(nextDate.getMonth() + 1).padStart(2, '0');
+    const nextDayStr = String(nextDate.getDate()).padStart(2, '0');
+    const nextDateStr = `${nextYearStr}${nextMonthStr}${nextDayStr}`;
+
+    const uidName = encodeURIComponent(ev.name).replace(/%/g, '');
+
+    icsLines.push('BEGIN:VEVENT');
+    icsLines.push(`UID:event-${uidName}-${month}-${day}@bc-charadb.com`);
+    icsLines.push(`DTSTART;VALUE=DATE:${dateStr}`);
+    icsLines.push(`DTEND;VALUE=DATE:${nextDateStr}`);
+    icsLines.push('RRULE:FREQ=YEARLY');
+    icsLines.push(`SUMMARY:${ev.symbol || '📅'} ${escapeText(ev.name)}`);
+    icsLines.push('END:VEVENT');
+  });
+
+  icsLines.push('END:VCALENDAR');
+
+  const icsContent = icsLines.join('\r\n');
+
+  // Trigger download
+  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8;' });
+  const link = document.createElement('a');
+  if (link.download !== undefined) {
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'bc_chara_calendar.ics');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 };
 
