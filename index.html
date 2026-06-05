@@ -4,22 +4,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="ブラックチャンネルのキャラクター情報を素早く確認・検索できるファンDBサイト。">
-  <title>BC CHR DB</title>
+  <meta name="description" content="ブラックチャンネルのキャラクター情報を素早く確認・検索できるファンサイト。">
+  <title>BCキャラ情報</title>
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
   <div class="container">
     <header>
-      <h1 id="main-title">BC CHR DB</h1>
-      <p>悪魔系YouTuber「ブラック」たちの情報を素早くチェック！</p>
+      <h1 id="main-title">BCキャラ情報</h1>
+      <p>BCキャラ情報</p>
     </header>
 
     <main>
       <!-- 1. カレンダー -->
       <section class="calendar-section" id="calendar-section" aria-label="誕生日カレンダー">
-        <h2>Birthday Calendar (誕生日カレンダー)</h2>
+        <h2>誕生日カレンダー</h2>
         <div class="calendar-layout">
           <div class="calendar-main">
             <div class="calendar-controls">
@@ -41,17 +41,18 @@
             </div>
           </div>
           <div class="calendar-sidebar">
-            <h3>🎂 誕生日一覧 (All Birthdays)</h3>
+            <h3>誕生日一覧</h3>
             <ul class="birthday-list" id="all-birthday-list">
               <!-- JSで動的にリストアップされます -->
             </ul>
+            <button id="toggle-birthday-list-btn" class="toggle-bday-btn" style="display: none;">もっと見る ▼</button>
           </div>
         </div>
       </section>
 
       <!-- 2. 身長比較 -->
       <section class="height-section" id="height-section" aria-label="身長比較">
-        <h2>Height Comparison Chart (身長比較)</h2>
+        <h2>身長比較</h2>
         <div class="height-chart-wrapper">
           <div class="chart-container" id="chart-container">
             <!-- JSで動的に追加されます -->
@@ -60,7 +61,7 @@
       </section>
 
       <!-- 3. キャラ一覧 (検索とリスト) -->
-      <section class="controls" aria-label="検索と統計">
+      <section class="controls" aria-label="検索">
         <div class="search-box">
           <input type="text" id="search-input" placeholder="キャラ名、誕生日、一人称、口癖で検索..." aria-label="キャラクター検索">
           <button id="clear-search-btn" class="clear-search-btn" aria-label="検索をクリア" style="display: none;">×</button>

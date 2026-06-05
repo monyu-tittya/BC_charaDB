@@ -141,6 +141,7 @@ const birthdaySection = document.getElementById('birthday-section');
 const chartContainer = document.getElementById('chart-container');
 const totalCountEl = document.getElementById('total-count');
 const knownHeightCountEl = document.getElementById('known-height-count');
+const toggleBirthdayListBtn = document.getElementById('toggle-birthday-list-btn');
 
 // Calendar DOM Elements
 const prevMonthBtn = document.getElementById('prev-month-btn');
@@ -151,6 +152,7 @@ const calendarGridDays = document.getElementById('calendar-grid-days');
 // Calendar State
 let currentCalYear = new Date().getFullYear();
 let currentCalMonth = new Date().getMonth() + 1; // 1-12
+let isBdayExpanded = false;
 
 // Fetch and load character data
 async function loadCharacters() {
@@ -202,6 +204,13 @@ function initApp() {
       updateClearButtonVisibility();
       renderApp();
       searchInput.focus();
+    });
+  }
+
+  if (toggleBirthdayListBtn) {
+    toggleBirthdayListBtn.addEventListener('click', () => {
+      isBdayExpanded = !isBdayExpanded;
+      renderCalendarSidebar();
     });
   }
 
@@ -455,12 +464,27 @@ function renderCalendarSidebar() {
   const allBirthdayList = document.getElementById('all-birthday-list');
   allBirthdayList.innerHTML = '';
   
-  // Sort characters by birthday month and day (excluding '?')
+  // Sort characters by upcoming birthday starting from today
+  const now = new Date();
+  const todayVal = (now.getMonth() + 1) * 100 + now.getDate();
+  
+  const getBdayScore = (bdayStr) => {
+    const parts = bdayStr.split('-');
+    if (parts.length !== 2) return 9999;
+    const m = parseInt(parts[0], 10);
+    const d = parseInt(parts[1], 10);
+    const bdayVal = m * 100 + d;
+    return bdayVal >= todayVal ? (bdayVal - todayVal) : (bdayVal + 1200 - todayVal);
+  };
+
   const validBirthdays = characters
     .filter(char => char.birthday && char.birthday !== '?')
-    .sort((a, b) => a.birthday.localeCompare(b.birthday));
-    
-  validBirthdays.forEach(char => {
+    .sort((a, b) => getBdayScore(a.birthday) - getBdayScore(b.birthday));
+
+  // Determine slice based on expanded state
+  const displayedBirthdays = isBdayExpanded ? validBirthdays : validBirthdays.slice(0, 3);
+  
+  displayedBirthdays.forEach(char => {
     const li = document.createElement('li');
     li.className = 'birthday-list-item';
     
@@ -488,6 +512,16 @@ function renderCalendarSidebar() {
     
     allBirthdayList.appendChild(li);
   });
+
+  // Manage toggle button
+  if (toggleBirthdayListBtn) {
+    if (validBirthdays.length > 3) {
+      toggleBirthdayListBtn.style.display = 'block';
+      toggleBirthdayListBtn.textContent = isBdayExpanded ? '閉じる ▲' : `もっと見る (${validBirthdays.length - 3}件) ▼`;
+    } else {
+      toggleBirthdayListBtn.style.display = 'none';
+    }
+  }
 }
 
 // Global filter helper so it can be called from onclick attribute
