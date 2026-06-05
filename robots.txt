@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+# ご自身の実際のVercelのURLに変更してください
+Sitemap: https://bc-chara-db.vercel.app/sitemap.xml
+
